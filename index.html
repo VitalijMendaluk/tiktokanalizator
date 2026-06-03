@@ -696,11 +696,13 @@ function buildKB() {
 const history = [];
 
 async function getAIResponse(userText) {
-  history.push({ role: 'user', parts: [{ text: userText }] });
+  // Додаємо до history тільки після успіху
+  const newEntry = { role: 'user', parts: [{ text: userText }] };
+  const snapshot = [...history, newEntry];
 
   const body = {
     system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-    contents: history,
+    contents: snapshot,
     generationConfig: { temperature: 0.65, maxOutputTokens: 1024 }
   };
 
@@ -711,13 +713,15 @@ async function getAIResponse(userText) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Помилка ${res.status}`);
+    throw new Error(err.error?.message || `Помилка API: ${res.status}`);
   }
 
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Пуста відповідь');
+  if (!text) throw new Error('Пуста відповідь від Gemini');
 
+  // Тільки тут оновлюємо history — якщо все пройшло успішно
+  history.push(newEntry);
   history.push({ role: 'model', parts: [{ text }] });
   return text;
 }
@@ -849,10 +853,8 @@ async function ask(text) {
     addBubble('ai', answer);
   } catch (err) {
     typing.remove();
-    // Fallback на локальну базу якщо API недоступний
-    const local = findLocal(text);
-    addBubble('ai', local);
-    console.warn('Gemini error, used local KB:', err.message);
+    addBubble('ai', `⚠️ Помилка: ${err.message}\n\nПеревір підключення до інтернету або спробуй ще раз.`);
+    console.error('Gemini error:', err);
   } finally {
     busy = false;
     sendBtn.disabled = !input.value.trim();
