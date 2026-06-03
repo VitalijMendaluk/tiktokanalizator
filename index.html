@@ -11,324 +11,357 @@
   :root {
     --red: #ff0050;
     --cyan: #00f2ea;
-    --bg: #000000;
-    --surface: #0a0a0a;
-    --surface2: #111111;
+    --bg: #000;
+    --s1: #0a0a0a;
+    --s2: #111;
     --border: rgba(255,255,255,0.07);
     --muted: #6b7280;
-    --text: #ffffff;
   }
 
-  html, body {
-    height: 100%; width: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
-  }
+  html { height: 100%; }
 
   body {
-    background: radial-gradient(circle at 50% -20%, #1a0b2e 0%, #000000 65%);
+    height: 100%; width: 100%;
+    background: radial-gradient(ellipse at 50% 0%, #1a0b2e 0%, #000 60%);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
   }
 
-  /* ── LAYOUT ── */
   #app {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 480px;
-    margin: 0 auto;
-    position: relative;
+    width: 100%;
+    max-width: 520px;
   }
 
   /* ── HEADER ── */
   #header {
     text-align: center;
-    padding: 28px 20px 16px;
+    padding: 32px 20px 20px;
     flex-shrink: 0;
     transition: padding 0.5s ease;
-    position: relative;
   }
-  #header.compact { padding: 16px 20px 8px; }
+  #header.compact { padding: 14px 20px 10px; }
 
-  #header h1 {
-    font-size: clamp(52px, 14vw, 72px);
+  h1 {
+    font-size: clamp(48px, 13vw, 80px);
     font-weight: 900;
     font-style: italic;
     text-transform: uppercase;
     letter-spacing: -0.03em;
-    line-height: 0.85;
+    line-height: 0.88;
     transition: font-size 0.5s ease;
+    display: block;
   }
-  #header.compact h1 { font-size: clamp(28px, 7vw, 36px); }
-  #header h1 .red { color: var(--red); }
-  #header h1 .cyan {
-    color: var(--cyan);
-    text-shadow: 0 0 20px rgba(0,242,234,0.5);
-  }
+  #header.compact h1 { font-size: clamp(26px, 6vw, 34px); }
+  .red { color: var(--red); }
+  .cyan { color: var(--cyan); text-shadow: 0 0 22px rgba(0,242,234,0.55); }
 
   #subtitle {
-    margin-top: 20px;
-    transition: all 0.5s ease;
+    margin-top: 18px;
+    opacity: 1;
+    max-height: 200px;
+    transition: all 0.45s ease;
     overflow: hidden;
   }
-  #subtitle.hidden { max-height: 0; opacity: 0; margin-top: 0; }
-  #subtitle .line {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-bottom: 4px;
+  #subtitle.hidden { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
+
+  .sub-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
   }
-  #subtitle .line span { height: 1px; width: 24px; background: #1f2937; display: block; }
-  #subtitle .label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--muted);
+  .sub-label::before, .sub-label::after {
+    content: '';
+    height: 1px;
+    width: 28px;
+    background: #1f2937;
+    display: block;
   }
-  #subtitle .desc {
-    margin-top: 20px; font-size: 14px; color: #9ca3af;
-    line-height: 1.6; max-width: 280px; margin-left: auto; margin-right: auto;
+  .sub-label span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 
-  /* Settings button */
-  #settings-btn {
-    position: absolute; top: 20px; right: 16px;
-    background: none; border: 1px solid var(--border); border-radius: 8px;
-    color: var(--muted); cursor: pointer; padding: 6px 10px;
-    font-size: 12px; font-family: 'Inter', sans-serif;
-    display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+  .sub-desc {
+    font-size: 14px;
+    color: #9ca3af;
+    line-height: 1.6;
+    max-width: 300px;
+    margin: 0 auto;
   }
-  #settings-btn:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
 
-  /* Settings panel */
-  #settings-panel {
-    margin: 0 16px 12px;
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 14px; padding: 16px; display: none;
-    flex-shrink: 0;
+  /* Ping dot */
+  .ping {
+    display: inline-block;
+    width: 7px; height: 7px;
+    position: relative;
+    vertical-align: middle;
+    margin-right: 4px;
   }
-  #settings-panel.open { display: block; }
-  #settings-panel label {
-    display: block; font-size: 11px; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 8px;
+  .ping::before, .ping::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--red);
   }
-  #settings-panel input {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 14px; color: #fff;
-    font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-    transition: border-color 0.2s;
-  }
-  #settings-panel input:focus { border-color: rgba(0,242,234,0.4); }
-  #settings-panel input::placeholder { color: rgba(255,255,255,0.2); }
-  #settings-panel .hint {
-    font-size: 12px; color: var(--muted); margin-top: 6px;
-  }
-  #settings-panel .hint a { color: var(--cyan); text-decoration: none; }
+  .ping::before { animation: pingAnim 1.8s cubic-bezier(0,0,0.2,1) infinite; opacity: 0.6; }
 
   /* ── CHAT ── */
   #chat {
-    flex: 1; overflow-y: auto; padding: 8px 16px 8px;
-    display: flex; flex-direction: column; gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overscroll-behavior: contain;
   }
   #chat::-webkit-scrollbar { width: 3px; }
-  #chat::-webkit-scrollbar-thumb { background: rgba(255,0,80,0.3); border-radius: 4px; }
+  #chat::-webkit-scrollbar-thumb { background: rgba(255,0,80,0.25); border-radius: 4px; }
 
   .msg { display: flex; animation: fadeUp 0.35s ease-out both; }
   .msg.user { justify-content: flex-end; }
-  .msg.ai { justify-content: flex-start; }
+  .msg.ai   { justify-content: flex-start; }
 
   .bubble {
-    max-width: 90%; padding: 14px 16px; border-radius: 18px;
-    font-size: 14px; line-height: 1.55;
+    max-width: 88%;
+    padding: 13px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.6;
   }
   .msg.user .bubble {
-    background: linear-gradient(135deg, var(--red), #9e0031);
+    background: linear-gradient(135deg, #ff0050, #9e0031);
     border-bottom-right-radius: 4px;
-    color: #fff; font-weight: 600; font-size: 14px;
+    color: #fff;
+    font-weight: 600;
     border: 1px solid rgba(255,0,80,0.2);
-    box-shadow: 0 4px 20px rgba(255,0,80,0.25);
+    box-shadow: 0 4px 20px rgba(255,0,80,0.22);
   }
   .msg.ai .bubble {
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--s1);
+    border: 1px solid var(--border);
     border-bottom-left-radius: 4px;
-    color: #e5e7eb;
+    color: #d1d5db;
   }
-
-  /* Formatted AI text */
+  .bubble .ai-head {
+    color: var(--red);
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
   .bubble h3 {
-    color: var(--red); font-weight: 900; font-size: 13px;
-    text-transform: uppercase; letter-spacing: 0.04em;
-    margin-top: 10px; margin-bottom: 4px;
+    color: var(--red);
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 10px 0 5px;
   }
   .bubble h3:first-child { margin-top: 0; }
-  .bubble p { margin: 3px 0; color: #d1d5db; font-size: 14px; }
+  .bubble p { margin: 3px 0; font-size: 14px; color: #d1d5db; }
+  .bubble ul { padding-left: 4px; list-style: none; }
+  .bubble li { padding: 3px 0; font-size: 14px; color: #d1d5db; }
 
-  /* Typing dots */
-  .typing-dot {
+  /* Typing */
+  .typing-bubble {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .dot {
     width: 6px; height: 6px; border-radius: 50%;
     animation: bounce 0.9s infinite ease-in-out;
   }
-  .typing-dot:nth-child(1) { background: var(--red); animation-delay: 0ms; }
-  .typing-dot:nth-child(2) { background: var(--cyan); animation-delay: 150ms; }
-  .typing-dot:nth-child(3) { background: var(--red); animation-delay: 300ms; }
+  .dot:nth-child(1) { background: var(--red);  animation-delay: 0ms; }
+  .dot:nth-child(2) { background: var(--cyan); animation-delay: 150ms; }
+  .dot:nth-child(3) { background: var(--red);  animation-delay: 300ms; }
+
+  /* ── QUICK PROMPTS ── */
+  #quick-wrap {
+    flex-shrink: 0;
+    padding: 4px 16px 8px;
+    overflow: hidden;
+    max-height: 120px;
+    opacity: 1;
+    transition: all 0.4s ease;
+  }
+  #quick-wrap.hidden { max-height: 0; opacity: 0; padding: 0 16px; pointer-events: none; }
+
+  #quick-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  #quick-scroll::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    color: #9ca3af;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: rgba(255,0,80,0.5); color: #fff; background: rgba(255,0,80,0.07); }
 
   /* ── INPUT ── */
-  #input-wrap {
+  #input-area {
     flex-shrink: 0;
-    padding: 8px 16px 20px;
-    background: linear-gradient(to top, #000 60%, transparent);
+    padding: 6px 16px 24px;
+    background: linear-gradient(to top, #000 55%, transparent);
   }
 
   #input-form {
-    display: flex; align-items: center;
-    background: var(--surface2); border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 4px 4px 4px 20px;
+    display: flex;
+    align-items: center;
+    background: var(--s2);
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.09);
+    padding: 4px 4px 4px 18px;
     transition: border-color 0.2s;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
   }
-  #input-form:focus-within { border-color: rgba(255,0,80,0.35); }
+  #input-form:focus-within { border-color: rgba(255,0,80,0.4); }
 
-  #input-field {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: #fff; font-family: 'Inter', sans-serif;
-    font-size: 16px; padding: 12px 0;
-    placeholder-color: var(--muted);
+  #msg-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    padding: 11px 0;
+    min-width: 0;
   }
-  #input-field::placeholder { color: #4b5563; }
+  #msg-input::placeholder { color: #374151; }
 
   #send-btn {
-    width: 44px; height: 44px; border-radius: 50%; border: none;
-    background: var(--red); color: #fff; cursor: pointer;
+    width: 44px; height: 44px;
+    border-radius: 50%; border: none;
+    background: var(--red); color: #fff;
+    cursor: pointer; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s; flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(255,0,80,0.4);
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(255,0,80,0.38);
   }
-  #send-btn:hover { background: #cc0040; transform: scale(1.05); }
-  #send-btn:active { transform: scale(0.95); }
-  #send-btn:disabled { opacity: 0.25; background: #555; box-shadow: none; cursor: not-allowed; transform: none; }
-
+  #send-btn:hover { background: #cc0040; transform: scale(1.06); }
+  #send-btn:active { transform: scale(0.94); }
+  #send-btn:disabled { opacity: 0.22; background: #444; box-shadow: none; cursor: not-allowed; transform: none; }
   #send-btn svg { width: 18px; height: 18px; transform: rotate(90deg); }
 
-  /* Reset */
-  #reset-wrap {
-    text-align: center; margin-top: 10px;
-    display: none;
+  #reset-row {
+    text-align: center;
+    margin-top: 10px;
+    min-height: 36px;
   }
-  #reset-wrap.visible { display: block; }
   #reset-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 20px; background: var(--surface);
-    border: 1px solid rgba(0,242,234,0.25); border-radius: 50px;
-    color: var(--cyan); font-size: 10px; font-weight: 700;
-    letter-spacing: 0.25em; text-transform: uppercase;
-    cursor: pointer; font-family: 'Inter', sans-serif;
+    display: none;
+    align-items: center; gap: 8px;
+    padding: 8px 22px;
+    background: var(--s1);
+    border: 1px solid rgba(0,242,234,0.25);
+    border-radius: 50px;
+    color: var(--cyan);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
     transition: all 0.2s;
     animation: glowPulse 2.5s infinite ease-in-out;
   }
-  #reset-btn:hover { background: rgba(0,242,234,0.08); }
+  #reset-btn.visible { display: inline-flex; }
+  #reset-btn:hover { background: rgba(0,242,234,0.07); }
   #reset-btn svg { width: 14px; height: 14px; }
-
-  /* Ping dot */
-  .ping-dot {
-    position: absolute; top: 20px; right: 60px;
-    width: 6px; height: 6px;
-  }
-  .ping-dot::before, .ping-dot::after {
-    content: ''; position: absolute; inset: 0;
-    border-radius: 50%; background: var(--red);
-  }
-  .ping-dot::before { animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite; opacity: 0.6; }
-
-  /* ── QUICK PROMPTS ── */
-  #quick-prompts {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    padding: 0 16px 12px;
-    flex-shrink: 0;
-    transition: all 0.4s ease;
-    overflow: hidden;
-  }
-  #quick-prompts.hidden { max-height: 0; padding-bottom: 0; opacity: 0; }
-  .quick-chip {
-    padding: 7px 14px; border-radius: 50px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    font-size: 12px; color: #9ca3af; cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.2s; white-space: nowrap;
-  }
-  .quick-chip:hover { border-color: rgba(255,0,80,0.4); color: #fff; background: rgba(255,0,80,0.06); }
 
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
   }
   @keyframes bounce {
     0%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-6px); }
+    40%           { transform: translateY(-7px); }
   }
-  @keyframes ping {
+  @keyframes pingAnim {
     75%, 100% { transform: scale(2.5); opacity: 0; }
   }
   @keyframes glowPulse {
-    0%, 100% { box-shadow: 0 0 5px rgba(0,242,234,0.15); }
-    50% { box-shadow: 0 0 14px rgba(0,242,234,0.4); }
+    0%, 100% { box-shadow: 0 0 4px rgba(0,242,234,0.15); }
+    50%       { box-shadow: 0 0 14px rgba(0,242,234,0.45); }
   }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Header -->
   <header id="header">
-    <div class="ping-dot"></div>
-    <button id="settings-btn" onclick="toggleSettings()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-      </svg>
-      API ключ
-    </button>
     <h1>TIKTOK <span class="red">НА</span><br><span class="cyan">МАКСИМУМ</span></h1>
     <div id="subtitle">
-      <div class="line"><span></span><span class="label">Твій AI-Наставник Віталік</span><span></span></div>
-      <p class="desc">Запитай про упаковку профілю, ідеї для відео або як продавати в TikTok 🚀</p>
+      <div class="sub-label"><span><span class="ping"></span>Твій AI-Наставник Віталік</span></div>
+      <p class="sub-desc">Запитай про упаковку профілю, ідеї для відео або як продавати в TikTok 🚀</p>
     </div>
   </header>
 
-  <!-- Settings -->
-  <div id="settings-panel">
-    <label>Gemini API Ключ (безкоштовний)</label>
-    <input type="password" id="api-key-input" placeholder="AIzaSy..." oninput="saveKey()">
-    <p class="hint">Отримай безкоштовно: <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → Get API key</p>
-  </div>
-
-  <!-- Chat -->
   <div id="chat"></div>
 
-  <!-- Quick prompts -->
-  <div id="quick-prompts">
-    <button class="quick-chip" onclick="sendQuick('Як оформити TikTok профіль з нуля?')">📱 Оформлення профілю</button>
-    <button class="quick-chip" onclick="sendQuick('Як написати ідеальний біо для TikTok?')">✍️ Біо-опис</button>
-    <button class="quick-chip" onclick="sendQuick('Які гачки найкраще працюють у відео?')">🎣 Гачки для відео</button>
-    <button class="quick-chip" onclick="sendQuick('Як продавати через TikTok Директ?')">💰 Продажі в Директі</button>
-    <button class="quick-chip" onclick="sendQuick('Скільки відео на тиждень публікувати?')">📅 Частота постингу</button>
-    <button class="quick-chip" onclick="sendQuick('CapCut чи Edits — що краще для монтажу?')">🎬 Монтаж</button>
+  <div id="quick-wrap">
+    <div id="quick-scroll">
+      <button class="chip" onclick="ask('Як оформити TikTok профіль з нуля?')">📱 Оформлення профілю</button>
+      <button class="chip" onclick="ask('Як написати ідеальне біо для TikTok?')">✍️ Біо-опис</button>
+      <button class="chip" onclick="ask('Які гачки найкраще працюють у відео?')">🎣 Гачки для відео</button>
+      <button class="chip" onclick="ask('Як продавати через TikTok Директ?')">💰 Продажі в Директі</button>
+      <button class="chip" onclick="ask('Скільки відео публікувати на тиждень?')">📅 Частота постингу</button>
+      <button class="chip" onclick="ask('CapCut чи Edits — що краще для монтажу?')">🎬 Монтаж</button>
+      <button class="chip" onclick="ask('Як прогріти новий TikTok акаунт?')">🔥 Прогрів акаунту</button>
+      <button class="chip" onclick="ask('Яка формула успішного TikTok відео?')">⚡ Формула відео</button>
+    </div>
   </div>
 
-  <!-- Input -->
-  <div id="input-wrap">
+  <div id="input-area">
     <form id="input-form" onsubmit="handleSubmit(event)">
-      <input id="input-field" type="text" placeholder="Що підказати?" autocomplete="off" autofocus>
+      <input id="msg-input" type="text" placeholder="Що підказати?" autocomplete="off" autofocus>
       <button id="send-btn" type="submit" disabled>
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
         </svg>
       </button>
     </form>
-    <div id="reset-wrap">
+    <div id="reset-row">
       <button id="reset-btn" onclick="resetChat()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
         </svg>
         На головну
       </button>
@@ -336,257 +369,442 @@
   </div>
 
 </div>
-
 <script>
-const GEMINI_MODEL = 'gemini-2.0-flash';
+// ─────────────────────────────────────────────
+//  KNOWLEDGE BASE
+// ─────────────────────────────────────────────
+const KB = [
+  {
+    keys: ['профіл', 'оформ', 'аватар', 'нік', 'нікнейм', 'акаунт з нуля', 'з нуля', 'налаштув'],
+    title: '📱 Оформлення профілю',
+    answer: `[H]5 кроків ідеального TikTok профілю[/H]
 
-const KNOWLEDGE_BASE = `
-ОСНОВНІ ПРИНЦИПИ TIKTOK (2025-2026):
-- TikTok — це нова пошукова система. 40% молоді шукають тут інформацію замість Google.
-- Алгоритм оцінює ВІДЕО, а не акаунт. Кожне відео — окремий тест.
-- Головна метрика №1 — УТРИМАННЯ УВАГИ.
-- Гачок (перші 3 секунди) = 51% успіху.
-- Формула успішного відео: Гачок (зупинити увагу) + Сенс (донести думку) + CTA (заклик до дії).
+1️⃣ Аватар — крупний план обличчя без фільтрів або чіткий логотип компанії. Жодних темних фото.
 
-ЕТАП 1: ФУНДАМЕНТ ТА ПРОФІЛЬ
-- Вибір між Акаунтом Автора (тренді звуки, Creator Marketplace) та Бізнес-акаунтом (реклама, посилання без 1000 підп., аналітика).
-- Профіль — це міні-лендінг. 5 кроків оптимізації:
-  1. Аватар (крупний план, без фільтрів, логотип компанії).
-  2. Нікнейм (короткий, до 15 симв., без цифр, ключове слово ніші).
-  3. Опис/Біо (Формула: Хто/Що/Чому + Заклик. 80 символів).
-  4. Соціальний доказ (докази успіху, промокоди).
-  5. Посилання (Бізнес-акаунт відразу, авторський від 1000 підп.).
+2️⃣ Нікнейм — короткий (до 15 символів), без цифр і крапок, з ключовим словом ніші. Наприклад: @fitnes.vitalik замість @vitalik_1985_fitness.
 
-ЕТАП 2: КОНТЕНТ ТА АЛГОРИТМИ
-- 4 типи контенту:
-  1. Охоплення (знайомство, міфи, помилки — 40%).
-  2. Довіра (свій шлях, досвід, думки — 30%).
-  3. Користь (чек-листи, інструкції — 20%).
-  4. Заявки/Продаж (рішення, кейси, процеси — 10%).
-- Прогрів акаунту (3 дні): День 1 — дослідження ніші, День 2 — взаємодія (лайки/коменти), День 3 — підписки на експертів.
-- Зйомка: Вертикально, на рівні очей, чистий звук, 1 відео щодня краще ніж 1 ідеальне на тиждень.
+3️⃣ Біо-опис — Формула: Хто ти + Що даєш + Заклик. Приклад: "Тренер з бігу 🏃 Схуди за 30 днів → посилання".
 
-ЕТАП 3: МОНТАЖ (CapCut vs Edits)
-- CapCut: складніший, більше функцій, шаблони, краще для складного контенту.
-- Edits: максимально простий, швидкий, мінімум дій, ідеально для початківців.
-- Монтаж має займати 10-20 хв. Не ускладнюйте!
-- Текст у відео критично важливий, бо багато дивляться без звуку.
+4️⃣ Соціальний доказ — додай результат або регалію прямо в біо: "100+ учнів", "топ-10 тренерів UA".
 
-ЕТАП 4: ПРОДАЖІ В ДІРЕКТІ
-- Продаж — це не тиснути, а допомогти.
-- Скрипт: Вхід у діалог → Уточнення запиту → Відображення (мене зрозуміли) → М'яка пропозиція → Ціна як факт.
-- Робота з запереченнями:
-  "Дорого" — розповіж про цінність і результат.
-  "Треба подумати" — не тисніть, дайте простір.
-  "Не впевнений" — уточніть що саме викликає сумнів.
+5️⃣ Посилання — бізнес-акаунт дає посилання одразу, авторський — від 1000 підписників.
 
-ТОП 30 ГАЧКІВ:
-- "99% людей роблять цю помилку в [ТЕМА]"
-- "Тобі не потрібен [МІФ], щоб [РЕЗУЛЬТАТ]"
-- "3 кроки, щоб почати [ТЕМА] правильно"
-- "Я б ніколи не починав [ТЕМА], якби знав це раніше"
-- "Цей простий крок змінює все"
-- "Стоп! Якщо ти [ЦЕ] — ця відео для тебе"
-- "Ніхто не говорить правду про [ТЕМА]"
-- "Чому я кинув [МІФ] і що зробив замість"
-- "Мій результат за [СТРОК] без [МІФ]"
-- "Що буде якщо [СЦЕНАРІЙ]?"
-`;
+[H]Порада[/H]
+👉 Твій профіль — це міні-лендінг. У тебе є 3 секунди, щоб людина вирішила підписатись.`
+  },
+  {
+    keys: ['біо', 'опис', 'bio', 'підпис'],
+    title: '✍️ Ідеальне біо',
+    answer: `[H]Формула біо-опису для TikTok[/H]
 
-const SYSTEM_PROMPT = `Ти — AI-наставник Віталік, експерт з TikTok маркетингу з 10+ роками досвіду.
-Допомагаєш будувати успішні акаунти на основі бази знань. Відповідаєш ТІЛЬКИ українською.
+📌 Максимум 80 символів. Кожне слово = на вагу золота.
 
-СТИЛЬ:
-- Коротко і по суті. Без "води".
-- Використовуй емодзі для кожного пункту.
-- Звертайся на "ти", будь дружнім наставником.
-- Заголовки: [H]ТЕКСТ[/H]. НЕ використовуй ### або ***.
-- Розділяй думки новими рядками.
+Формула: [Хто ти] + [Що отримає людина] + [Заклик до дії]
 
-БАЗА ЗНАНЬ:
-${KNOWLEDGE_BASE}`;
+[H]Приклади[/H]
+✅ "SMM-спеціаліст 📱 Навчаю заробляти в TikTok → курс нижче"
+✅ "Нутриціолог 🥗 Схуднути без голодівки → меню в посиланні"
+✅ "Психолог 🧠 Техніки зниження тривоги щодня → безкоштовний гайд"
 
-// ── STATE ──
-let messages = [];
-let isLoading = false;
-let hasStarted = false;
+[H]Що НЕ писати[/H]
+❌ "Привіт, я Катя, мені 24, я люблю кіно і кофе"
+❌ Багато хештегів у біо — вони не натискаються
+❌ Телефон або email — TikTok може заблокувати
 
-// ── INIT ──
-const savedKey = localStorage.getItem('gemini_key');
-if (savedKey) {
-  document.getElementById('api-key-input').value = savedKey;
-} else {
-  document.getElementById('settings-panel').classList.add('open');
+👉 Щотижня тестуй різні формулювання і дивись на ріст підписників.`
+  },
+  {
+    keys: ['гачок', 'перші 3', 'увага', 'зупини', 'hook', 'перші секунд'],
+    title: '🎣 Гачки для відео',
+    answer: `[H]Топ гачків для перших 3 секунд[/H]
+
+Гачок = 51% успіху відео. Без нього — провал.
+
+[H]Найкращі формули[/H]
+🔴 "99% людей роблять цю помилку в [ТЕМА]"
+🔴 "Я витратив [СТРОК] на [ТЕМА] — ось що я дізнався"
+🔴 "Тобі не потрібен [МІФ], щоб [РЕЗУЛЬТАТ]"
+🔴 "3 кроки, щоб почати [ТЕМА] правильно"
+🔴 "Стоп! Якщо ти [ЦЕ] — це відео для тебе"
+🔴 "Ніхто не говорить правду про [ТЕМА]"
+🔴 "Я б ніколи не починав, якби знав це раніше"
+🔴 "Чому мій акаунт виріс на [N] за [СТРОК]?"
+🔴 "Що буде, якщо [НЕСПОДІВАНИЙ СЦЕНАРІЙ]?"
+🔴 "Секрет [РЕЗУЛЬТАТУ], про який мовчать всі"
+
+[H]Правило гачка[/H]
+👉 Перші 3 секунди — текст на екрані + голос + дія. Всі три одночасно. Глядач вирішує залишитись або піти саме тут.`
+  },
+  {
+    keys: ['продаж', 'директ', 'direct', 'скрипт', 'продават', 'заперечен', 'дорого', 'клієнт'],
+    title: '💰 Продажі в Директі',
+    answer: `[H]Скрипт продажів у TikTok Директ[/H]
+
+Продаж — це НЕ тиснути, а допомогти людині.
+
+[H]5 кроків скрипту[/H]
+1️⃣ Вхід у діалог — "Привіт! Бачу, тебе цікавить [ТЕМА]. Розкажи детальніше, що хочеш отримати?"
+2️⃣ Уточнення запиту — дізнайся конкретну проблему, терміни, бюджет.
+3️⃣ Відображення — "Тобто тобі потрібно [ПЕРЕФРАЗУЙ ЇХ СЛОВА] — правильно розумію?"
+4️⃣ М'яка пропозиція — "У мене є [ПРОДУКТ], який вирішує саме це. Хочеш розповім?"
+5️⃣ Ціна як факт — "Вартість — [ЦІНА]. Включає [БОНУС]. Як зручно оплатити?"
+
+[H]Робота із запереченнями[/H]
+💬 "Дорого" → "Це інвестиція в [РЕЗУЛЬТАТ]. Скільки коштує не вирішити проблему?"
+💬 "Треба подумати" → "Звісно, не поспішаю. Що саме ще хочеш прояснити?"
+💬 "Не впевнений" → "Що конкретно викликає сумнів? Давай розберемо разом."
+
+👉 Ніколи не кажи "купи" першим. Спершу зрозумій людину.`
+  },
+  {
+    keys: ['частот', 'скільки', 'відео на тиждень', 'публікув', 'постинг', 'коли постит'],
+    title: '📅 Частота публікацій',
+    answer: `[H]Скільки відео публікувати?[/H]
+
+📌 Правило TikTok 2025: 1 відео щодня > 7 відео за тиждень.
+
+[H]Рекомендований графік[/H]
+🟢 Початківець — 1 відео/день (навіть коротке, 15-30 сек)
+🟡 Середній рівень — 1-2 відео/день
+🔴 Агресивне зростання — 3+ відео/день
+
+[H]Найкращий час публікації (Україна)[/H]
+⏰ Пн-Пт: 18:00–20:00 — основний контент
+⏰ Вт-Чт: 12:00–14:00 — підтримуючий контент
+⏰ Сб-Нд: 10:00–12:00 — трендовий контент
+
+[H]Головне правило[/H]
+👉 Стабільність важливіша за ідеальність. 1 відео щодня протягом 30 днів = гарантований ріст. TikTok підтримує активних авторів.`
+  },
+  {
+    keys: ['монтаж', 'capcut', 'edits', 'редагув', 'відеоредактор', 'cap cut'],
+    title: '🎬 CapCut vs Edits',
+    answer: `[H]Що обрати для монтажу?[/H]
+
+[H]CapCut[/H]
+✅ Більше функцій і ефектів
+✅ Шаблони для швидкого монтажу
+✅ Автосубтитри (критично важливо!)
+✅ Краще для складного контенту
+❌ Складніший у навчанні
+
+[H]Edits (від Meta)[/H]
+✅ Максимально простий і швидкий
+✅ Ідеально для початківців
+✅ Мінімум кнопок — максимум швидкості
+❌ Менше функцій
+
+[H]Головні правила монтажу[/H]
+⚡ Монтаж має займати 10-20 хв, не більше
+📝 Субтитри — обов'язково (60% дивляться без звуку)
+✂️ Різка склейка кожні 1-2 секунди = утримання уваги
+🎵 Трендова музика підсилює охоплення в 2-3 рази
+
+👉 Початківцям — Edits. Коли освоїш — переходь на CapCut.`
+  },
+  {
+    keys: ['прогрів', 'новий акаунт', 'з нуля акаунт', 'перші дні', 'старт'],
+    title: '🔥 Прогрів нового акаунту',
+    answer: `[H]Прогрів TikTok акаунту за 3 дні[/H]
+
+📌 Це критичний етап. Не пропускай!
+
+[H]День 1 — Дослідження ніші[/H]
+🔍 Проведи 1-2 години в TikTok, дивлячись контент своєї ніші
+👍 Лайкай і зберігай відео, що тобі подобаються
+💬 Залишай реальні коментарі (НЕ "круто" або "👍")
+
+[H]День 2 — Активна взаємодія[/H]
+💬 50-100 осмислених коментарів під чужими відео
+👥 Підпишись на 20-30 аккаунтів ніші
+📺 Дивись відео до кінця (алгоритм це бачить)
+
+[H]День 3 — Підписки на лідерів[/H]
+🎯 Підпишись на топ-10 експертів своєї ніші
+📱 Заповни профіль повністю (фото, біо, посилання)
+🎬 Перше відео — публікуй!
+
+[H]Чому це важливо?[/H]
+👉 Алгоритм TikTok "читає" твої перші дії і визначає, кому показувати твій контент. Правильний прогрів = правильна аудиторія з першого відео.`
+  },
+  {
+    keys: ['формул', 'успішн', 'вірусн', 'алгоритм', 'охоплення', 'як зробити відео'],
+    title: '⚡ Формула успішного відео',
+    answer: `[H]Формула вірусного TikTok відео[/H]
+
+Гачок + Сенс + CTA = Успіх 🎯
+
+[H]1. ГАЧОК (0-3 секунди)[/H]
+🔴 Зупини пальце глядача. Питання, шок, обіцянка.
+→ "Я не вірив, що це спрацює, але..."
+
+[H]2. СЕНС (3-50 секунд)[/H]
+📌 Виконай обіцянку з гачка
+📌 Чергуй кадри кожні 1-2 сек
+📌 Субтитри завжди включені
+📌 Говори швидко і по суті
+
+[H]3. CTA (останні 3 секунди)[/H]
+👉 "Збережи це відео, щоб не загубити"
+👉 "Напиши в коменті [СЛОВО] і отримай..."
+👉 "Підпишись — завтра ще краще"
+
+[H]4 типи контенту (баланс)[/H]
+🟣 Охоплення (знайомство, помилки, міфи) — 40%
+🔵 Довіра (свій шлях, досвід, думки) — 30%
+🟢 Користь (чек-листи, інструкції) — 20%
+🔴 Продаж (рішення, кейси) — 10%
+
+👉 Головна метрика TikTok — утримання уваги. Якщо 50%+ дивляться до кінця — відео піде у рекомендації.`
+  },
+  {
+    keys: ['тип контент', 'ідеї для відео', 'що знімат', 'теми для', 'контент план', 'контент-план'],
+    title: '💡 Ідеї для контенту',
+    answer: `[H]Контент-план для TikTok[/H]
+
+[H]40% — Охоплення (нові глядачі)[/H]
+📌 "Помилки, які роблять всі в [ТЕМА]"
+📌 "Міф про [ТЕМА], у який всі вірять"
+📌 "Чому [ПОПУЛЯРНА ПОРАДА] не працює"
+
+[H]30% — Довіра (лояльність)[/H]
+📌 Свій шлях і помилки
+📌 Особиста думка на гостру тему
+📌 "День із мого життя" або behind the scenes
+
+[H]20% — Користь (зберігання)[/H]
+📌 Чек-листи і покрокові інструкції
+📌 Корисні лайфхаки у форматі "Це змінить все"
+📌 Списки: "5 застосунків, якими я користуюсь щодня"
+
+[H]10% — Продаж[/H]
+📌 Кейси клієнтів з результатами
+📌 "До і після" роботи з тобою
+📌 Процес роботи (покулісні кадри)
+
+👉 Порада: зроби таблицю на місяць і заплануй по типу. Ніколи не думай "що знімати сьогодні?"—цей список твоя відповідь.`
+  },
+  {
+    keys: ['автор', 'бізнес акаунт', 'бізнес-акаунт', 'який акаунт', 'creator', 'тип акаунту'],
+    title: '🔑 Який акаунт вибрати',
+    answer: `[H]Акаунт Автора vs Бізнес-акаунт[/H]
+
+[H]Акаунт Автора[/H]
+✅ Доступ до трендових звуків (важливо для охоплення!)
+✅ Creator Marketplace (бренд-партнерства)
+✅ Детальна аналітика аудиторії
+❌ Посилання в біо — тільки від 1000 підписників
+
+[H]Бізнес-акаунт[/H]
+✅ Посилання в біо відразу (без порогу)
+✅ Реклама і просування постів
+✅ Інтеграція з магазином TikTok Shop
+✅ Розширена бізнес-аналітика
+❌ Немає доступу до більшості трендових звуків
+
+[H]Що обрати?[/H]
+🎯 Блогер / Особистий бренд → Акаунт Автора
+🏢 Компанія / Магазин / Послуги → Бізнес-акаунт
+🤔 Не знаєш → Акаунт Автора (можна перемкнути пізніше)
+
+👉 Головна різниця: трендові звуки на авторському = більше охоплення без реклами.`
+  },
+  {
+    keys: ['звук', 'музик', 'трендов', 'тренд'],
+    title: '🎵 Трендові звуки',
+    answer: `[H]Як використовувати тренди[/H]
+
+📌 Трендовий звук може збільшити охоплення в 2-5 разів.
+
+[H]Як знайти трендові звуки[/H]
+🔍 TikTok → Пошук → Звуки → Тренди
+🔍 Дивись що використовують конкуренти
+🔍 Перевіряй кількість відео на звуку: 10К–500К = в самий раз
+
+[H]Коли використовувати[/H]
+✅ Звук < 500К відео = "вхід у тренд"
+✅ Звук 500К–2М відео = пік тренду (заходь швидко)
+❌ Звук > 5М відео = тренд вмирає, пізно
+
+[H]Ліфхак[/H]
+🎯 Зберігай трендові звуки щодня, навіть якщо ще не знаєш що знімати. Коли з'явиться ідея — звук вже є.
+
+👉 Акаунт Автора має доступ до повної бібліотеки звуків. Бізнес-акаунт — лише до ліцензованих.`
+  },
+  {
+    keys: ['підписник', 'зростання', 'розкрутк', 'просуван', 'набрати', 'набрати підписник'],
+    title: '📈 Зростання підписників',
+    answer: `[H]Як зростати в TikTok швидко[/H]
+
+[H]5 перевірених стратегій[/H]
+
+1️⃣ Стабільність — 1 відео/день протягом 30 днів. Алгоритм любить активних.
+
+2️⃣ Ніша — вибери одну тему і стань в ній №1 у своєму регіоні. Не розпилюйся.
+
+3️⃣ Коментарі-магніти — залишай розумні коментарі під великими акаунтами своєї ніші. Твій нік бачать тисячі людей.
+
+4️⃣ Дуети і стичи — реагуй на вірусні відео в ніші. TikTok показує твоє відео аудиторії оригіналу.
+
+5️⃣ Аналітика — після кожного відео дивись: % утримання, звідки трафік, хто дивиться. Роби більше того, що спрацювало.
+
+[H]Головний секрет[/H]
+👉 1000 підписників — психологічний бар'єр. Після нього алгоритм починає більше довіряти акаунту. Зосередься на першій тисячі.`
+  },
+];
+
+// Fallback відповідь
+const FALLBACK = `[H]Відмінне питання![/H]
+
+Я AI-наставник з TikTok і можу допомогти з:
+
+📱 Оформленням профілю та біо
+🎣 Гачками для відео
+💰 Продажами в Директі
+📅 Графіком публікацій
+🎬 Монтажем (CapCut / Edits)
+🔥 Прогрівом нового акаунту
+⚡ Формулою вірусних відео
+📈 Стратегією зростання
+
+Спробуй запитати про будь-яку з цих тем, або натисни на один з підказів нижче 👇`;
+
+// ─────────────────────────────────────────────
+//  SMART SEARCH
+// ─────────────────────────────────────────────
+function findAnswer(q) {
+  const low = q.toLowerCase()
+    .replace(/ї/g,'і').replace(/є/g,'е').replace(/ґ/g,'г');
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const item of KB) {
+    let score = 0;
+    for (const kw of item.keys) {
+      const k = kw.toLowerCase().replace(/ї/g,'і').replace(/є/g,'е').replace(/ґ/g,'г');
+      if (low.includes(k)) score += k.length;
+    }
+    if (score > bestScore) { bestScore = score; best = item; }
+  }
+
+  if (best && bestScore >= 3) return best.answer;
+  return FALLBACK;
 }
 
-document.getElementById('input-field').addEventListener('input', function() {
-  document.getElementById('send-btn').disabled = !this.value.trim() || isLoading;
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let started = false;
+let busy = false;
+
+// ─────────────────────────────────────────────
+//  UI HELPERS
+// ─────────────────────────────────────────────
+const chat      = document.getElementById('chat');
+const input     = document.getElementById('msg-input');
+const sendBtn   = document.getElementById('send-btn');
+const header    = document.getElementById('header');
+const subtitle  = document.getElementById('subtitle');
+const quickWrap = document.getElementById('quick-wrap');
+const resetBtn  = document.getElementById('reset-btn');
+
+input.addEventListener('input', () => {
+  sendBtn.disabled = !input.value.trim() || busy;
 });
 
-// ── SETTINGS ──
-function toggleSettings() {
-  document.getElementById('settings-panel').classList.toggle('open');
-}
-function saveKey() {
-  const k = document.getElementById('api-key-input').value.trim();
-  if (k) localStorage.setItem('gemini_key', k);
-}
-
-// ── SUBMIT ──
-async function handleSubmit(e) {
-  e.preventDefault();
-  const field = document.getElementById('input-field');
-  const text = field.value.trim();
-  if (!text || isLoading) return;
-
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) {
-    document.getElementById('settings-panel').classList.add('open');
-    document.getElementById('api-key-input').focus();
-    return;
-  }
-
-  field.value = '';
-  document.getElementById('send-btn').disabled = true;
-  await sendMessage(text, key);
-}
-
-function sendQuick(text) {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) {
-    document.getElementById('settings-panel').classList.add('open');
-    document.getElementById('api-key-input').focus();
-    return;
-  }
-  sendMessage(text, key);
-}
-
-async function sendMessage(text, key) {
-  if (!hasStarted) activateChat();
-
-  messages.push({ role: 'user', text });
-  appendBubble('user', text);
-  const typingEl = appendTyping();
-
-  isLoading = true;
-  document.getElementById('send-btn').disabled = true;
-
-  try {
-    const contents = messages.map(m => ({
-      role: m.role === 'ai' ? 'model' : 'user',
-      parts: [{ text: m.text }]
-    }));
-
-    const body = {
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents,
-      generationConfig: { temperature: 0.65, maxOutputTokens: 1024 }
-    };
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    );
-
-    typingEl.remove();
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      const msg = err.error?.message || `Помилка ${res.status}`;
-      if (res.status === 400 && msg.includes('API_KEY')) throw new Error('Невалідний API ключ. Перевір у налаштуваннях.');
-      if (res.status === 403) throw new Error('Доступ заборонено. Перевір API ключ.');
-      throw new Error(msg);
-    }
-
-    const data = await res.json();
-    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!aiText) throw new Error('Пуста відповідь. Спробуй ще раз.');
-
-    messages.push({ role: 'ai', text: aiText });
-    appendBubble('ai', aiText);
-
-  } catch (err) {
-    typingEl?.remove();
-    appendBubble('ai', `⚠️ ${err.message || 'Сталася помилка. Спробуй ще раз.'}`);
-  } finally {
-    isLoading = false;
-    const field = document.getElementById('input-field');
-    document.getElementById('send-btn').disabled = !field.value.trim();
-    scrollChat();
-  }
-}
-
-// ── UI ──
 function activateChat() {
-  hasStarted = true;
-  document.getElementById('header').classList.add('compact');
-  document.getElementById('subtitle').classList.add('hidden');
-  document.getElementById('quick-prompts').classList.add('hidden');
-  document.getElementById('reset-wrap').classList.add('visible');
-  document.getElementById('settings-panel').classList.remove('open');
+  started = true;
+  header.classList.add('compact');
+  subtitle.classList.add('hidden');
+  quickWrap.classList.add('hidden');
+  resetBtn.classList.add('visible');
 }
 
 function resetChat() {
-  messages = [];
-  hasStarted = false;
-  document.getElementById('chat').innerHTML = '';
-  document.getElementById('header').classList.remove('compact');
-  document.getElementById('subtitle').classList.remove('hidden');
-  document.getElementById('quick-prompts').classList.remove('hidden');
-  document.getElementById('reset-wrap').classList.remove('visible');
-  document.getElementById('input-field').focus();
+  started = false;
+  busy = false;
+  chat.innerHTML = '';
+  header.classList.remove('compact');
+  subtitle.classList.remove('hidden');
+  quickWrap.classList.remove('hidden');
+  resetBtn.classList.remove('visible');
+  input.value = '';
+  sendBtn.disabled = true;
+  input.focus();
 }
 
-function appendBubble(role, text) {
-  const chat = document.getElementById('chat');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  if (role === 'ai') {
-    bubble.innerHTML = formatText(text);
+function scrollChat() {
+  setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 40);
+}
+
+function addBubble(role, html) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  if (role === 'user') {
+    bub.textContent = html;
   } else {
-    bubble.textContent = text;
+    bub.innerHTML = '<div class="ai-head"><span style="color:var(--red)">●</span> Наставник Віталік</div>' + formatAI(html);
   }
-  div.appendChild(bubble);
-  chat.appendChild(div);
+  wrap.appendChild(bub);
+  chat.appendChild(wrap);
   scrollChat();
-  return div;
+  return wrap;
 }
 
-function appendTyping() {
-  const chat = document.getElementById('chat');
-  const div = document.createElement('div');
-  div.className = 'msg ai';
-  div.innerHTML = `<div class="bubble" style="display:flex;align-items:center;gap:6px;padding:14px 16px">
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-  </div>`;
-  chat.appendChild(div);
+function addTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ai';
+  wrap.innerHTML = '<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  chat.appendChild(wrap);
   scrollChat();
-  return div;
+  return wrap;
 }
 
-function formatText(text) {
+function formatAI(text) {
   return text
     .replace(/\[H\](.*?)\[\/H\]/gi, '<h3>$1</h3>')
     .split('\n')
     .map(line => {
-      const clean = line.replace(/[#*]{2,}/g, '').trim();
-      if (!clean) return '<div style="height:4px"></div>';
-      return `<p>${escHtml(clean)}</p>`;
+      const t = line.trim();
+      if (!t) return '<div style="height:3px"></div>';
+      return '<p>' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
     })
     .join('');
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// ─────────────────────────────────────────────
+//  SEND
+// ─────────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text || busy) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  ask(text);
 }
 
-function scrollChat() {
-  const chat = document.getElementById('chat');
-  setTimeout(() => chat.scrollTop = chat.scrollHeight, 50);
+function ask(text) {
+  if (busy) return;
+  if (!started) activateChat();
+
+  addBubble('user', text);
+  busy = true;
+
+  const typing = addTyping();
+
+  // Симулюємо "думання" — 600-1200 мс
+  const delay = 600 + Math.random() * 600;
+  setTimeout(() => {
+    typing.remove();
+    const answer = findAnswer(text);
+    addBubble('ai', answer);
+    busy = false;
+    sendBtn.disabled = !input.value.trim();
+  }, delay);
 }
 </script>
 </body>
