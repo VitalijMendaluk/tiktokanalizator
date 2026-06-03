@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TikTok На Максимум — AI Наставник</title>
+<title>Генератор Сценаріїв — TikTok</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,6 +14,7 @@
     --bg: #000;
     --s1: #0a0a0a;
     --s2: #111;
+    --s3: #161616;
     --border: rgba(255,255,255,0.07);
     --muted: #6b7280;
   }
@@ -21,849 +22,638 @@
   html { height: 100%; }
 
   body {
-    height: 100%; width: 100%;
+    min-height: 100%;
     background: radial-gradient(ellipse at 50% 0%, #1a0b2e 0%, #000 60%);
     color: #fff;
     font-family: 'Inter', sans-serif;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
+    overflow-x: hidden;
   }
 
-  #app {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100%;
+  .container {
     max-width: 520px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
   }
 
   /* ── HEADER ── */
-  #header {
+  header {
     text-align: center;
-    padding: 32px 20px 20px;
-    flex-shrink: 0;
-    transition: padding 0.5s ease;
+    padding: 36px 0 28px;
   }
-  #header.compact { padding: 14px 20px 10px; }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .back-btn svg { width: 12px; height: 12px; }
 
   h1 {
-    font-size: clamp(48px, 13vw, 80px);
+    font-size: clamp(40px, 11vw, 64px);
     font-weight: 900;
     font-style: italic;
     text-transform: uppercase;
     letter-spacing: -0.03em;
     line-height: 0.88;
-    transition: font-size 0.5s ease;
-    display: block;
   }
-  #header.compact h1 { font-size: clamp(26px, 6vw, 34px); }
-  .red { color: var(--red); }
-  .cyan { color: var(--cyan); text-shadow: 0 0 22px rgba(0,242,234,0.55); }
+  .red  { color: var(--red); }
+  .cyan { color: var(--cyan); text-shadow: 0 0 22px rgba(0,242,234,0.5); }
 
-  #subtitle {
-    margin-top: 18px;
-    opacity: 1;
-    max-height: 200px;
-    transition: all 0.45s ease;
-    overflow: hidden;
-  }
-  #subtitle.hidden { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none; }
-
-  .sub-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .sub-label::before, .sub-label::after {
-    content: '';
-    height: 1px;
-    width: 28px;
-    background: #1f2937;
-    display: block;
-  }
-  .sub-label span {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+  .sub {
+    margin-top: 12px;
+    font-size: 14px;
     color: var(--muted);
+    line-height: 1.5;
   }
 
-  .sub-desc {
-    font-size: 14px;
-    color: #9ca3af;
-    line-height: 1.6;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-
-  /* Ping dot */
-  .ping {
-    display: inline-block;
-    width: 7px; height: 7px;
-    position: relative;
-    vertical-align: middle;
-    margin-right: 4px;
-  }
-  .ping::before, .ping::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: var(--red);
-  }
-  .ping::before { animation: pingAnim 1.8s cubic-bezier(0,0,0.2,1) infinite; opacity: 0.6; }
-
-  /* ── CHAT ── */
-  #chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overscroll-behavior: contain;
-  }
-  #chat::-webkit-scrollbar { width: 3px; }
-  #chat::-webkit-scrollbar-thumb { background: rgba(255,0,80,0.25); border-radius: 4px; }
-
-  .msg { display: flex; animation: fadeUp 0.35s ease-out both; }
-  .msg.user { justify-content: flex-end; }
-  .msg.ai   { justify-content: flex-start; }
-
-  .bubble {
-    max-width: 88%;
-    padding: 13px 16px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .msg.user .bubble {
-    background: linear-gradient(135deg, #ff0050, #9e0031);
-    border-bottom-right-radius: 4px;
-    color: #fff;
-    font-weight: 600;
-    border: 1px solid rgba(255,0,80,0.2);
-    box-shadow: 0 4px 20px rgba(255,0,80,0.22);
-  }
-  .msg.ai .bubble {
+  /* ── CARD ── */
+  .card {
     background: var(--s1);
     border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-    color: #d1d5db;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 16px;
   }
-  .bubble .ai-head {
-    color: var(--red);
-    font-weight: 900;
-    font-size: 12px;
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    color: var(--muted);
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
-  .bubble h3 {
+  .card-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--red), var(--cyan));
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ── INPUTS ── */
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: rgba(255,0,80,0.4);
+  }
+  input::placeholder, textarea::placeholder { color: #374151; }
+  textarea { resize: none; height: 80px; line-height: 1.5; }
+
+  /* ── GENERATE BUTTON ── */
+  #gen-btn {
+    width: 100%;
+    padding: 17px;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, var(--red), #ff6b8a, var(--cyan), var(--red));
+    background-size: 300% 100%;
+    animation: gradShift 4s ease infinite;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 8px 32px rgba(255,0,80,0.3);
+  }
+  #gen-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,0,80,0.45); }
+  #gen-btn:active { transform: translateY(0); }
+  #gen-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; background: #333; box-shadow: none; }
+  @keyframes gradShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+  }
+  #loader.active { display: block; }
+
+  .loader-icon {
+    width: 52px; height: 52px;
+    margin: 0 auto 16px;
+    animation: spinIcon 1.4s cubic-bezier(0.68,-0.55,0.27,1.55) infinite;
+  }
+  @keyframes spinIcon {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(0.78); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .loader-text {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .animated-dots span { animation: blinkDot 1.4s infinite both; }
+  .animated-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .animated-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blinkDot { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+  /* ── RESULTS ── */
+  #results {
+    display: none;
+  }
+  #results.visible {
+    display: block;
+    animation: fadeUp 0.4s ease-out both;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red  { background: var(--red); }
+  .dot-cyan { background: var(--cyan); }
+  .dot-white { background: rgba(255,255,255,0.4); }
+
+  .result-text {
+    font-size: 15px;
+    color: #e5e7eb;
+    line-height: 1.65;
+  }
+  .result-text p { margin: 5px 0; }
+  .result-text h4 {
     color: var(--red);
     font-weight: 800;
     font-size: 12px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 10px 0 5px;
+    letter-spacing: 0.06em;
+    margin: 12px 0 6px;
   }
-  .bubble h3:first-child { margin-top: 0; }
-  .bubble p { margin: 3px 0; font-size: 14px; color: #d1d5db; }
-  .bubble ul { padding-left: 4px; list-style: none; }
-  .bubble li { padding: 3px 0; font-size: 14px; color: #d1d5db; }
+  .result-text h4:first-child { margin-top: 0; }
 
-  /* Typing */
-  .typing-bubble {
-    background: var(--s1);
+  .hook-box {
+    background: linear-gradient(135deg, rgba(255,0,80,0.1), rgba(0,242,234,0.05));
+    border: 1px solid rgba(255,0,80,0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #fff;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .hook-quote {
+    position: absolute;
+    top: 12px; left: 16px;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--red);
+    opacity: 0.3;
+    font-family: Georgia, serif;
+  }
+  .hook-text { padding-left: 8px; padding-top: 8px; }
+
+  /* Copy block */
+  .copy-block {
+    background: var(--s2);
     border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-    border-radius: 18px;
-    padding: 14px 18px;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-  }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    animation: bounce 0.9s infinite ease-in-out;
-  }
-  .dot:nth-child(1) { background: var(--red);  animation-delay: 0ms; }
-  .dot:nth-child(2) { background: var(--cyan); animation-delay: 150ms; }
-  .dot:nth-child(3) { background: var(--red);  animation-delay: 300ms; }
-
-  /* ── QUICK PROMPTS ── */
-  #quick-wrap {
-    flex-shrink: 0;
-    padding: 4px 16px 8px;
-    overflow-y: auto;
-    max-height: 40vh;
-    opacity: 1;
-    transition: opacity 0.4s ease;
-    scrollbar-width: none;
-  }
-  #quick-wrap::-webkit-scrollbar { display: none; }
-  #quick-wrap.hidden { max-height: 0; opacity: 0; padding: 0 16px; pointer-events: none; overflow: hidden; }
-
-  #quick-scroll {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .chip {
-    padding: 10px 14px;
     border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    font-size: 13px;
+    padding: 14px 16px;
+    font-size: 14px;
     color: #9ca3af;
+    line-height: 1.6;
+    position: relative;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     transition: all 0.2s;
-    text-align: left;
-    line-height: 1.3;
+    width: fit-content;
   }
-  .chip:hover { border-color: rgba(255,0,80,0.5); color: #fff; background: rgba(255,0,80,0.07); }
+  .copy-btn:hover { background: rgba(0,242,234,0.08); border-color: rgba(0,242,234,0.3); color: var(--cyan); }
+  .copy-btn.copied { color: var(--cyan); border-color: rgba(0,242,234,0.4); background: rgba(0,242,234,0.06); }
+  .copy-btn svg { width: 13px; height: 13px; }
 
-  /* ── INPUT ── */
-  #input-area {
-    flex-shrink: 0;
-    padding: 6px 16px 24px;
-    background: linear-gradient(to top, #000 55%, transparent);
-  }
-
-  #input-form {
-    display: flex;
-    align-items: center;
-    background: var(--s2);
+  /* Tags */
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+  .tag {
+    background: rgba(255,0,80,0.08);
+    border: 1px solid rgba(255,0,80,0.2);
     border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.09);
-    padding: 4px 4px 4px 18px;
-    transition: border-color 0.2s;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    padding: 5px 12px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
   }
-  #input-form:focus-within { border-color: rgba(255,0,80,0.4); }
 
-  #msg-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    padding: 11px 0;
-    min-width: 0;
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
   }
-  #msg-input::placeholder { color: #374151; }
 
-  #send-btn {
-    width: 44px; height: 44px;
-    border-radius: 50%; border: none;
-    background: var(--red); color: #fff;
-    cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(255,0,80,0.38);
-  }
-  #send-btn:hover { background: #cc0040; transform: scale(1.06); }
-  #send-btn:active { transform: scale(0.94); }
-  #send-btn:disabled { opacity: 0.22; background: #444; box-shadow: none; cursor: not-allowed; transform: none; }
-  #send-btn svg { width: 18px; height: 18px; transform: rotate(90deg); }
-
-  #reset-row {
-    text-align: center;
-    margin-top: 10px;
-    min-height: 36px;
-  }
-  #reset-btn {
+  /* Error */
+  .error-box {
+    background: rgba(255,0,80,0.08);
+    border: 1px solid rgba(255,0,80,0.25);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #fca5a5;
     display: none;
-    align-items: center; gap: 8px;
-    padding: 8px 22px;
+    margin-bottom: 12px;
+  }
+  .error-box.visible { display: flex; gap: 10px; align-items: flex-start; }
+
+  /* Reset */
+  .reset-wrap { text-align: center; margin-top: 8px; }
+  .reset-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 24px;
     background: var(--s1);
     border: 1px solid rgba(0,242,234,0.25);
     border-radius: 50px;
     color: var(--cyan);
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.22em; text-transform: uppercase;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     transition: all 0.2s;
     animation: glowPulse 2.5s infinite ease-in-out;
   }
-  #reset-btn.visible { display: inline-flex; }
-  #reset-btn:hover { background: rgba(0,242,234,0.07); }
-  #reset-btn svg { width: 14px; height: 14px; }
+  .reset-btn:hover { background: rgba(0,242,234,0.07); }
+  .reset-btn svg { width: 14px; height: 14px; }
 
   /* ── ANIMATIONS ── */
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
+    from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes bounce {
-    0%, 80%, 100% { transform: translateY(0); }
-    40%           { transform: translateY(-7px); }
-  }
-  @keyframes pingAnim {
-    75%, 100% { transform: scale(2.5); opacity: 0; }
-  }
   @keyframes glowPulse {
-    0%, 100% { box-shadow: 0 0 4px rgba(0,242,234,0.15); }
-    50%       { box-shadow: 0 0 14px rgba(0,242,234,0.45); }
+    0%, 100% { box-shadow: 0 0 4px rgba(0,242,234,0.12); }
+    50%       { box-shadow: 0 0 14px rgba(0,242,234,0.4); }
   }
+
+  /* footer */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.12);
+    padding-top: 16px;
+    letter-spacing: 0.08em;
+  }
+  .footer span { color: var(--red); }
 </style>
 </head>
 <body>
-<div id="app">
+<div class="container">
 
-  <header id="header">
-    <h1>TIKTOK <span class="red">НА</span><br><span class="cyan">МАКСИМУМ</span></h1>
-    <div id="subtitle">
-      <div class="sub-label"><span><span class="ping"></span>Твій AI-Наставник Віталік</span></div>
-      <p class="sub-desc">Запитай про упаковку профілю, ідеї для відео або як продавати в TikTok 🚀</p>
-    </div>
+  <header>
+    <a href="index.html" class="back-btn">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Наставник Віталік
+    </a>
+    <h1>ГЕНЕРАТОР<br><span class="red">СЦЕ</span><span class="cyan">НАРІЮ</span></h1>
+    <p class="sub">Введи нішу і аудиторію — отримай готовий сценарій для TikTok</p>
   </header>
 
-  <div id="chat"></div>
-
-  <div id="quick-wrap">
-    <div id="quick-scroll">
-      <button class="chip" onclick="ask('Як оформити TikTok профіль з нуля?')">📱 Оформлення профілю</button>
-      <button class="chip" onclick="ask('Як написати ідеальне біо для TikTok?')">✍️ Біо-опис</button>
-      <button class="chip" onclick="ask('Які гачки найкраще працюють у відео?')">🎣 Гачки для відео</button>
-      <button class="chip" onclick="ask('Як продавати через TikTok Директ?')">💰 Продажі в Директі</button>
-      <button class="chip" onclick="ask('Скільки відео публікувати на тиждень?')">📅 Частота постингу</button>
-      <button class="chip" onclick="ask('CapCut чи Edits — що краще для монтажу?')">🎬 Монтаж</button>
-      <button class="chip" onclick="ask('Як прогріти новий TikTok акаунт?')">🔥 Прогрів акаунту</button>
-      <button class="chip" onclick="ask('Яка формула успішного TikTok відео?')">⚡ Формула відео</button>
+  <!-- API KEY CARD -->
+  <div class="card" id="key-card">
+    <div class="card-title">Gemini API Ключ</div>
+    <div class="field">
+      <input type="password" id="key-input" class="field-inp" placeholder="AIzaSy..." oninput="saveKey(this.value)">
     </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:6px">
+      Безкоштовний ключ: <a href="https://aistudio.google.com" target="_blank" style="color:var(--cyan);text-decoration:none">aistudio.google.com</a> → Get API key
+    </p>
   </div>
 
-  <div id="input-area">
-    <form id="input-form" onsubmit="handleSubmit(event)">
-      <input id="msg-input" type="text" placeholder="Що підказати?" autocomplete="off" autofocus>
-      <button id="send-btn" type="submit" disabled>
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">Дані для генерації</div>
+
+    <div class="field">
+      <label>Твоя ніша / тема відео</label>
+      <input type="text" id="niche" placeholder="Наприклад: фітнес для зайнятих, SMM, фінанси...">
+    </div>
+
+    <div class="field">
+      <label>Цільова аудиторія</label>
+      <input type="text" id="audience" placeholder="Наприклад: мами у декреті, підприємці 25-40 років...">
+    </div>
+
+    <div class="field">
+      <label>Мета відео <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#4b5563">(необов'язково)</span></label>
+      <input type="text" id="goal" placeholder="Наприклад: набрати підписників, продати курс...">
+    </div>
+
+    <div style="height:4px"></div>
+    <div class="error-box" id="error-box">⚠️ <span id="error-text"></span></div>
+    <button id="gen-btn" onclick="generate()">⚡ Згенерувати сценарій</button>
+  </div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-icon">
+      <svg viewBox="0 0 52 52" fill="none" width="52" height="52">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff0050"/>
+            <stop offset="100%" stop-color="#00f2ea"/>
+          </linearGradient>
+        </defs>
+        <path d="M21.5 6h9v25.5a8 8 0 1 1-9-7.9V15.1A17 17 0 1 0 38.5 31.5V16a18.9 18.9 0 0 0 8 1.6V9a10 10 0 0 1-8-3.2" fill="url(#lg)"/>
+      </svg>
+    </div>
+    <p class="loader-text">Генерую сценарій<span class="animated-dots"><span>.</span><span>.</span><span>.</span></span></p>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <!-- HOOK -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-red"></span>Гачок — перші 3 секунди</div>
+      <div class="hook-box">
+        <div class="hook-quote">"</div>
+        <div class="hook-text" id="r-hook"></div>
+      </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-white"></span>Сценарій відео</div>
+      <div class="result-text" id="r-script"></div>
+    </div>
+
+    <!-- CTA -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-cyan"></span>Заклик до дії (CTA)</div>
+      <div class="result-text" id="r-cta"></div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-white"></span>Опис для TikTok</div>
+      <div class="copy-block" id="r-desc"></div>
+      <button class="copy-btn" id="copy-desc-btn" onclick="copyBlock('r-desc', 'copy-desc-btn')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
         </svg>
+        Копіювати опис
       </button>
-    </form>
-    <div id="reset-row">
-      <button id="reset-btn" onclick="resetChat()">
+    </div>
+
+    <!-- HASHTAGS -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-red"></span>Хештеги</div>
+      <div class="tags-wrap" id="r-tags"></div>
+      <button class="copy-btn" id="copy-tags-btn" onclick="copyTags('copy-tags-btn')" style="margin-top:14px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        Копіювати хештеги
+      </button>
+    </div>
+
+    <div class="reset-wrap">
+      <button class="reset-btn" onclick="resetForm()">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        На головну
+        Новий сценарій
       </button>
     </div>
+
   </div>
+
 
 </div>
 <script>
-// ─────────────────────────────────────────────
-//  KNOWLEDGE BASE
-// ─────────────────────────────────────────────
-const KB = [
-  {
-    keys: ['профіл', 'оформ', 'аватар', 'нік', 'нікнейм', 'акаунт з нуля', 'з нуля', 'налаштув'],
-    title: '📱 Оформлення профілю',
-    answer: `[H]5 кроків ідеального TikTok профілю[/H]
 
-1️⃣ Аватар — крупний план обличчя без фільтрів або чіткий логотип компанії. Жодних темних фото.
-
-2️⃣ Нікнейм — короткий (до 15 символів), без цифр і крапок, з ключовим словом ніші. Наприклад: @fitnes.vitalik замість @vitalik_1985_fitness.
-
-3️⃣ Біо-опис — Формула: Хто ти + Що даєш + Заклик. Приклад: "Тренер з бігу 🏃 Схуди за 30 днів → посилання".
-
-4️⃣ Соціальний доказ — додай результат або регалію прямо в біо: "100+ учнів", "топ-10 тренерів UA".
-
-5️⃣ Посилання — бізнес-акаунт дає посилання одразу, авторський — від 1000 підписників.
-
-[H]Порада[/H]
-👉 Твій профіль — це міні-лендінг. У тебе є 3 секунди, щоб людина вирішила підписатись.`
-  },
-  {
-    keys: ['біо', 'опис', 'bio', 'підпис'],
-    title: '✍️ Ідеальне біо',
-    answer: `[H]Формула біо-опису для TikTok[/H]
-
-📌 Максимум 80 символів. Кожне слово = на вагу золота.
-
-Формула: [Хто ти] + [Що отримає людина] + [Заклик до дії]
-
-[H]Приклади[/H]
-✅ "SMM-спеціаліст 📱 Навчаю заробляти в TikTok → курс нижче"
-✅ "Нутриціолог 🥗 Схуднути без голодівки → меню в посиланні"
-✅ "Психолог 🧠 Техніки зниження тривоги щодня → безкоштовний гайд"
-
-[H]Що НЕ писати[/H]
-❌ "Привіт, я Катя, мені 24, я люблю кіно і кофе"
-❌ Багато хештегів у біо — вони не натискаються
-❌ Телефон або email — TikTok може заблокувати
-
-👉 Щотижня тестуй різні формулювання і дивись на ріст підписників.`
-  },
-  {
-    keys: ['гачок', 'перші 3', 'увага', 'зупини', 'hook', 'перші секунд'],
-    title: '🎣 Гачки для відео',
-    answer: `[H]Топ гачків для перших 3 секунд[/H]
-
-Гачок = 51% успіху відео. Без нього — провал.
-
-[H]Найкращі формули[/H]
-🔴 "99% людей роблять цю помилку в [ТЕМА]"
-🔴 "Я витратив [СТРОК] на [ТЕМА] — ось що я дізнався"
-🔴 "Тобі не потрібен [МІФ], щоб [РЕЗУЛЬТАТ]"
-🔴 "3 кроки, щоб почати [ТЕМА] правильно"
-🔴 "Стоп! Якщо ти [ЦЕ] — це відео для тебе"
-🔴 "Ніхто не говорить правду про [ТЕМА]"
-🔴 "Я б ніколи не починав, якби знав це раніше"
-🔴 "Чому мій акаунт виріс на [N] за [СТРОК]?"
-🔴 "Що буде, якщо [НЕСПОДІВАНИЙ СЦЕНАРІЙ]?"
-🔴 "Секрет [РЕЗУЛЬТАТУ], про який мовчать всі"
-
-[H]Правило гачка[/H]
-👉 Перші 3 секунди — текст на екрані + голос + дія. Всі три одночасно. Глядач вирішує залишитись або піти саме тут.`
-  },
-  {
-    keys: ['продаж', 'директ', 'direct', 'скрипт', 'продават', 'заперечен', 'дорого', 'клієнт'],
-    title: '💰 Продажі в Директі',
-    answer: `[H]Скрипт продажів у TikTok Директ[/H]
-
-Продаж — це НЕ тиснути, а допомогти людині.
-
-[H]5 кроків скрипту[/H]
-1️⃣ Вхід у діалог — "Привіт! Бачу, тебе цікавить [ТЕМА]. Розкажи детальніше, що хочеш отримати?"
-2️⃣ Уточнення запиту — дізнайся конкретну проблему, терміни, бюджет.
-3️⃣ Відображення — "Тобто тобі потрібно [ПЕРЕФРАЗУЙ ЇХ СЛОВА] — правильно розумію?"
-4️⃣ М'яка пропозиція — "У мене є [ПРОДУКТ], який вирішує саме це. Хочеш розповім?"
-5️⃣ Ціна як факт — "Вартість — [ЦІНА]. Включає [БОНУС]. Як зручно оплатити?"
-
-[H]Робота із запереченнями[/H]
-💬 "Дорого" → "Це інвестиція в [РЕЗУЛЬТАТ]. Скільки коштує не вирішити проблему?"
-💬 "Треба подумати" → "Звісно, не поспішаю. Що саме ще хочеш прояснити?"
-💬 "Не впевнений" → "Що конкретно викликає сумнів? Давай розберемо разом."
-
-👉 Ніколи не кажи "купи" першим. Спершу зрозумій людину.`
-  },
-  {
-    keys: ['частот', 'скільки', 'відео на тиждень', 'публікув', 'постинг', 'коли постит'],
-    title: '📅 Частота публікацій',
-    answer: `[H]Скільки відео публікувати?[/H]
-
-📌 Правило TikTok 2025: 1 відео щодня > 7 відео за тиждень.
-
-[H]Рекомендований графік[/H]
-🟢 Початківець — 1 відео/день (навіть коротке, 15-30 сек)
-🟡 Середній рівень — 1-2 відео/день
-🔴 Агресивне зростання — 3+ відео/день
-
-[H]Найкращий час публікації (Україна)[/H]
-⏰ Пн-Пт: 18:00–20:00 — основний контент
-⏰ Вт-Чт: 12:00–14:00 — підтримуючий контент
-⏰ Сб-Нд: 10:00–12:00 — трендовий контент
-
-[H]Головне правило[/H]
-👉 Стабільність важливіша за ідеальність. 1 відео щодня протягом 30 днів = гарантований ріст. TikTok підтримує активних авторів.`
-  },
-  {
-    keys: ['монтаж', 'capcut', 'edits', 'редагув', 'відеоредактор', 'cap cut'],
-    title: '🎬 CapCut vs Edits',
-    answer: `[H]Що обрати для монтажу?[/H]
-
-[H]CapCut[/H]
-✅ Більше функцій і ефектів
-✅ Шаблони для швидкого монтажу
-✅ Автосубтитри (критично важливо!)
-✅ Краще для складного контенту
-❌ Складніший у навчанні
-
-[H]Edits (від Meta)[/H]
-✅ Максимально простий і швидкий
-✅ Ідеально для початківців
-✅ Мінімум кнопок — максимум швидкості
-❌ Менше функцій
-
-[H]Головні правила монтажу[/H]
-⚡ Монтаж має займати 10-20 хв, не більше
-📝 Субтитри — обов'язково (60% дивляться без звуку)
-✂️ Різка склейка кожні 1-2 секунди = утримання уваги
-🎵 Трендова музика підсилює охоплення в 2-3 рази
-
-👉 Початківцям — Edits. Коли освоїш — переходь на CapCut.`
-  },
-  {
-    keys: ['прогрів', 'новий акаунт', 'з нуля акаунт', 'перші дні', 'старт'],
-    title: '🔥 Прогрів нового акаунту',
-    answer: `[H]Прогрів TikTok акаунту за 3 дні[/H]
-
-📌 Це критичний етап. Не пропускай!
-
-[H]День 1 — Дослідження ніші[/H]
-🔍 Проведи 1-2 години в TikTok, дивлячись контент своєї ніші
-👍 Лайкай і зберігай відео, що тобі подобаються
-💬 Залишай реальні коментарі (НЕ "круто" або "👍")
-
-[H]День 2 — Активна взаємодія[/H]
-💬 50-100 осмислених коментарів під чужими відео
-👥 Підпишись на 20-30 аккаунтів ніші
-📺 Дивись відео до кінця (алгоритм це бачить)
-
-[H]День 3 — Підписки на лідерів[/H]
-🎯 Підпишись на топ-10 експертів своєї ніші
-📱 Заповни профіль повністю (фото, біо, посилання)
-🎬 Перше відео — публікуй!
-
-[H]Чому це важливо?[/H]
-👉 Алгоритм TikTok "читає" твої перші дії і визначає, кому показувати твій контент. Правильний прогрів = правильна аудиторія з першого відео.`
-  },
-  {
-    keys: ['формул', 'успішн', 'вірусн', 'алгоритм', 'охоплення', 'як зробити відео'],
-    title: '⚡ Формула успішного відео',
-    answer: `[H]Формула вірусного TikTok відео[/H]
-
-Гачок + Сенс + CTA = Успіх 🎯
-
-[H]1. ГАЧОК (0-3 секунди)[/H]
-🔴 Зупини пальце глядача. Питання, шок, обіцянка.
-→ "Я не вірив, що це спрацює, але..."
-
-[H]2. СЕНС (3-50 секунд)[/H]
-📌 Виконай обіцянку з гачка
-📌 Чергуй кадри кожні 1-2 сек
-📌 Субтитри завжди включені
-📌 Говори швидко і по суті
-
-[H]3. CTA (останні 3 секунди)[/H]
-👉 "Збережи це відео, щоб не загубити"
-👉 "Напиши в коменті [СЛОВО] і отримай..."
-👉 "Підпишись — завтра ще краще"
-
-[H]4 типи контенту (баланс)[/H]
-🟣 Охоплення (знайомство, помилки, міфи) — 40%
-🔵 Довіра (свій шлях, досвід, думки) — 30%
-🟢 Користь (чек-листи, інструкції) — 20%
-🔴 Продаж (рішення, кейси) — 10%
-
-👉 Головна метрика TikTok — утримання уваги. Якщо 50%+ дивляться до кінця — відео піде у рекомендації.`
-  },
-  {
-    keys: ['тип контент', 'ідеї для відео', 'що знімат', 'теми для', 'контент план', 'контент-план'],
-    title: '💡 Ідеї для контенту',
-    answer: `[H]Контент-план для TikTok[/H]
-
-[H]40% — Охоплення (нові глядачі)[/H]
-📌 "Помилки, які роблять всі в [ТЕМА]"
-📌 "Міф про [ТЕМА], у який всі вірять"
-📌 "Чому [ПОПУЛЯРНА ПОРАДА] не працює"
-
-[H]30% — Довіра (лояльність)[/H]
-📌 Свій шлях і помилки
-📌 Особиста думка на гостру тему
-📌 "День із мого життя" або behind the scenes
-
-[H]20% — Користь (зберігання)[/H]
-📌 Чек-листи і покрокові інструкції
-📌 Корисні лайфхаки у форматі "Це змінить все"
-📌 Списки: "5 застосунків, якими я користуюсь щодня"
-
-[H]10% — Продаж[/H]
-📌 Кейси клієнтів з результатами
-📌 "До і після" роботи з тобою
-📌 Процес роботи (покулісні кадри)
-
-👉 Порада: зроби таблицю на місяць і заплануй по типу. Ніколи не думай "що знімати сьогодні?"—цей список твоя відповідь.`
-  },
-  {
-    keys: ['автор', 'бізнес акаунт', 'бізнес-акаунт', 'який акаунт', 'creator', 'тип акаунту'],
-    title: '🔑 Який акаунт вибрати',
-    answer: `[H]Акаунт Автора vs Бізнес-акаунт[/H]
-
-[H]Акаунт Автора[/H]
-✅ Доступ до трендових звуків (важливо для охоплення!)
-✅ Creator Marketplace (бренд-партнерства)
-✅ Детальна аналітика аудиторії
-❌ Посилання в біо — тільки від 1000 підписників
-
-[H]Бізнес-акаунт[/H]
-✅ Посилання в біо відразу (без порогу)
-✅ Реклама і просування постів
-✅ Інтеграція з магазином TikTok Shop
-✅ Розширена бізнес-аналітика
-❌ Немає доступу до більшості трендових звуків
-
-[H]Що обрати?[/H]
-🎯 Блогер / Особистий бренд → Акаунт Автора
-🏢 Компанія / Магазин / Послуги → Бізнес-акаунт
-🤔 Не знаєш → Акаунт Автора (можна перемкнути пізніше)
-
-👉 Головна різниця: трендові звуки на авторському = більше охоплення без реклами.`
-  },
-  {
-    keys: ['звук', 'музик', 'трендов', 'тренд'],
-    title: '🎵 Трендові звуки',
-    answer: `[H]Як використовувати тренди[/H]
-
-📌 Трендовий звук може збільшити охоплення в 2-5 разів.
-
-[H]Як знайти трендові звуки[/H]
-🔍 TikTok → Пошук → Звуки → Тренди
-🔍 Дивись що використовують конкуренти
-🔍 Перевіряй кількість відео на звуку: 10К–500К = в самий раз
-
-[H]Коли використовувати[/H]
-✅ Звук < 500К відео = "вхід у тренд"
-✅ Звук 500К–2М відео = пік тренду (заходь швидко)
-❌ Звук > 5М відео = тренд вмирає, пізно
-
-[H]Ліфхак[/H]
-🎯 Зберігай трендові звуки щодня, навіть якщо ще не знаєш що знімати. Коли з'явиться ідея — звук вже є.
-
-👉 Акаунт Автора має доступ до повної бібліотеки звуків. Бізнес-акаунт — лише до ліцензованих.`
-  },
-  {
-    keys: ['підписник', 'зростання', 'розкрутк', 'просуван', 'набрати', 'набрати підписник'],
-    title: '📈 Зростання підписників',
-    answer: `[H]Як зростати в TikTok швидко[/H]
-
-[H]5 перевірених стратегій[/H]
-
-1️⃣ Стабільність — 1 відео/день протягом 30 днів. Алгоритм любить активних.
-
-2️⃣ Ніша — вибери одну тему і стань в ній №1 у своєму регіоні. Не розпилюйся.
-
-3️⃣ Коментарі-магніти — залишай розумні коментарі під великими акаунтами своєї ніші. Твій нік бачать тисячі людей.
-
-4️⃣ Дуети і стичи — реагуй на вірусні відео в ніші. TikTok показує твоє відео аудиторії оригіналу.
-
-5️⃣ Аналітика — після кожного відео дивись: % утримання, звідки трафік, хто дивиться. Роби більше того, що спрацювало.
-
-[H]Головний секрет[/H]
-👉 1000 підписників — психологічний бар'єр. Після нього алгоритм починає більше довіряти акаунту. Зосередься на першій тисячі.`
-  },
-];
-
-// Fallback відповідь
-const FALLBACK = `[H]Відмінне питання![/H]
-
-Я AI-наставник з TikTok і можу допомогти з:
-
-📱 Оформленням профілю та біо
-🎣 Гачками для відео
-💰 Продажами в Директі
-📅 Графіком публікацій
-🎬 Монтажем (CapCut / Edits)
-🔥 Прогрівом нового акаунту
-⚡ Формулою вірусних відео
-📈 Стратегією зростання
-
-Спробуй запитати про будь-яку з цих тем, або натисни на один з підказів нижче 👇`;
-
-// ─────────────────────────────────────────────
-//  GEMINI API
-// ─────────────────────────────────────────────
-const GEMINI_KEY = 'AIzaSyBi6swlWBHXDt63-zay4WasCFQZzUc8QCE';
-const GEMINI_MODEL = 'gemini-2.5-flash';
-
-const SYSTEM_PROMPT = `Ти — AI-наставник Віталік, експерт з TikTok маркетингу з 10+ роками досвіду.
-Допомагаєш будувати успішні TikTok акаунти. Відповідаєш ТІЛЬКИ українською мовою.
-
-СТИЛЬ ВІДПОВІДЕЙ:
-- Коротко і конкретно. Без "води" і загальних фраз.
-- Використовуй емодзі на початку кожного пункту.
-- Звертайся на "ти", будь дружнім наставником.
-- Заголовки: [H]ТЕКСТ[/H]. НЕ використовуй ### або ***.
-- Розділяй думки новими рядками.
-- Давай дієві поради, які можна застосувати одразу.
-- ВАЖЛИВО: НЕ вітайся ("Привіт", "Вітаю" тощо) у кожному повідомленні. Починай одразу з відповіді по суті.
-
-БАЗА ЗНАНЬ ПРО TIKTOK:
-${buildKB()}`;
-
-function buildKB() {
-  return KB.map(item => item.title + '\n' + item.answer.replace(/\[H\]|\[\/H\]/gi, '')).join('\n\n');
-}
-
-const history = [];
-
-async function getAIResponse(userText) {
-  // Додаємо до history тільки після успіху
-  const newEntry = { role: 'user', parts: [{ text: userText }] };
-  const snapshot = [...history, newEntry];
-
-  const body = {
-    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-    contents: snapshot,
-    generationConfig: { temperature: 0.65, maxOutputTokens: 1024 }
-  };
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-  );
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Помилка API: ${res.status}`);
+let lastTags = [];
+
+const PROMPT = (niche, audience, goal) => `Ти — топ TikTok-сценарист. Створи готовий сценарій для відео ТІЛЬКИ українською мовою.
+
+Ніша: ${niche}
+Аудиторія: ${audience}
+${goal ? `Мета: ${goal}` : ''}
+
+Відповідь ТІЛЬКИ у JSON, без будь-якого тексту до або після. Структура:
+{
+  "hook": "чіпляючий гачок-фраза для перших 3 секунд відео (одне речення, максимально конкретне)",
+  "script": [
+    "Теза 1 — що сказати",
+    "Теза 2 — що сказати",
+    "Теза 3 — що сказати",
+    "Теза 4 — що сказати"
+  ],
+  "cta": "конкретний заклик до дії в кінці відео",
+  "description": "короткий опис для TikTok (2-3 речення з емодзі, до 150 символів)",
+  "hashtags": ["#хештег1", "#хештег2", "#хештег3", "#хештег4", "#хештег5", "#хештег6", "#хештег7"]
+}`;
+
+async function generate() {
+  const niche    = document.getElementById('niche').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const goal     = document.getElementById('goal').value.trim();
+
+  if (!niche || !audience) {
+    showError('Заповни нішу і цільову аудиторію');
+    return;
   }
 
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Пуста відповідь від Gemini');
-
-  // Тільки тут оновлюємо history — якщо все пройшло успішно
-  history.push(newEntry);
-  history.push({ role: 'model', parts: [{ text }] });
-  return text;
-}
-
-// Локальний пошук як резервний варіант
-function findLocal(q) {
-  const low = q.toLowerCase().replace(/ї/g,'і').replace(/є/g,'е').replace(/ґ/g,'г');
-  let best = null, bestScore = 0;
-  for (const item of KB) {
-    let score = 0;
-    for (const kw of item.keys) {
-      const k = kw.toLowerCase().replace(/ї/g,'і').replace(/є/g,'е').replace(/ґ/g,'г');
-      if (low.includes(k)) score += k.length;
-    }
-    if (score > bestScore) { bestScore = score; best = item; }
-  }
-  return (best && bestScore >= 3) ? best.answer : FALLBACK;
-}
-
-// ─────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────
-let started = false;
-let busy = false;
-
-// ─────────────────────────────────────────────
-//  UI HELPERS
-// ─────────────────────────────────────────────
-const chat      = document.getElementById('chat');
-const input     = document.getElementById('msg-input');
-const sendBtn   = document.getElementById('send-btn');
-const header    = document.getElementById('header');
-const subtitle  = document.getElementById('subtitle');
-const quickWrap = document.getElementById('quick-wrap');
-const resetBtn  = document.getElementById('reset-btn');
-
-input.addEventListener('input', () => {
-  sendBtn.disabled = !input.value.trim() || busy;
-});
-
-function activateChat() {
-  started = true;
-  header.classList.add('compact');
-  subtitle.classList.add('hidden');
-  quickWrap.classList.add('hidden');
-  resetBtn.classList.add('visible');
-}
-
-function resetChat() {
-  started = false;
-  busy = false;
-  history.length = 0;
-  chat.innerHTML = '';
-  header.classList.remove('compact');
-  subtitle.classList.remove('hidden');
-  quickWrap.classList.remove('hidden');
-  resetBtn.classList.remove('visible');
-  input.value = '';
-  sendBtn.disabled = true;
-  input.focus();
-}
-
-function scrollChat() {
-  setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 40);
-}
-
-function addBubble(role, html) {
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ' + role;
-  const bub = document.createElement('div');
-  bub.className = 'bubble';
-  if (role === 'user') {
-    bub.textContent = html;
-  } else {
-    bub.innerHTML = '<div class="ai-head"><span style="color:var(--red)">●</span> Наставник Віталік</div>' + formatAI(html);
-  }
-  wrap.appendChild(bub);
-  chat.appendChild(wrap);
-  scrollChat();
-  return wrap;
-}
-
-function addTyping() {
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ai';
-  wrap.innerHTML = '<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-  chat.appendChild(wrap);
-  scrollChat();
-  return wrap;
-}
-
-function formatAI(text) {
-  return text
-    .split('\n')
-    .map(line => {
-      const t = line.trim();
-      if (!t) return '<div style="height:3px"></div>';
-      const headerMatch = t.match(/^\[H\](.*?)\[\/H\]$/i);
-      if (headerMatch) return '<h3>' + headerMatch[1].replace(/&/g,'&amp;') + '</h3>';
-      const clean = t
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .replace(/\*(.*?)\*/g, '$1')
-        .replace(/^[\*\-]\s+/, '');
-      return '<p>' + clean.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
-    })
-    .join('');
-}
-
-// ─────────────────────────────────────────────
-//  SEND
-// ─────────────────────────────────────────────
-function handleSubmit(e) {
-  e.preventDefault();
-  const text = input.value.trim();
-  if (!text || busy) return;
-  input.value = '';
-  sendBtn.disabled = true;
-  ask(text);
-}
-
-async function ask(text) {
-  if (busy) return;
-  if (!started) activateChat();
-
-  addBubble('user', text);
-  busy = true;
-  sendBtn.disabled = true;
-
-  const typing = addTyping();
+  hideError();
+  setLoading(true);
 
   try {
-    const answer = await getAIResponse(text);
-    typing.remove();
-    addBubble('ai', answer);
+    const body = {
+      contents: [{ role: 'user', parts: [{ text: PROMPT(niche, audience, goal) }] }],
+      generationConfig: {
+        temperature: 0.8,
+        maxOutputTokens: 2048,
+        responseMimeType: 'application/json'
+      }
+    };
+
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Помилка API: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!raw) throw new Error('Пуста відповідь від Gemini');
+
+    const match = raw.match(/\{[\s\S]*\}/);
+    const json  = JSON.parse(match ? match[0] : raw);
+    renderResults(json);
+
   } catch (err) {
-    typing.remove();
-    addBubble('ai', `⚠️ Помилка: ${err.message}\n\nПеревір підключення до інтернету або спробуй ще раз.`);
-    console.error('Gemini error:', err);
+    showError(err.message || 'Сталася помилка. Спробуй ще раз.');
   } finally {
-    busy = false;
-    sendBtn.disabled = !input.value.trim();
+    setLoading(false);
   }
+}
+
+function renderResults(d) {
+  // Hook
+  document.getElementById('r-hook').textContent = d.hook || '';
+
+  // Script
+  const scriptEl = document.getElementById('r-script');
+  scriptEl.innerHTML = '';
+  (d.script || []).forEach((line, i) => {
+    const p = document.createElement('p');
+    p.style.cssText = 'padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:10px;align-items:flex-start';
+    p.innerHTML = `<span style="color:var(--red);font-weight:800;font-size:13px;flex-shrink:0;margin-top:1px">${String(i+1).padStart(2,'0')}</span><span>${esc(line)}</span>`;
+    if (i === (d.script.length - 1)) p.style.borderBottom = 'none';
+    scriptEl.appendChild(p);
+  });
+
+  // CTA
+  document.getElementById('r-cta').innerHTML = `<p style="font-size:15px;font-weight:600;color:#fff">${esc(d.cta || '')}</p>`;
+
+  // Description
+  document.getElementById('r-desc').textContent = d.description || '';
+
+  // Hashtags
+  lastTags = d.hashtags || [];
+  const tagsEl = document.getElementById('r-tags');
+  tagsEl.innerHTML = lastTags.map(h => `<span class="tag">${esc(h)}</span>`).join('');
+
+  document.getElementById('results').classList.add('visible');
+  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function resetForm() {
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('niche').value = '';
+  document.getElementById('audience').value = '';
+  document.getElementById('goal').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => document.getElementById('niche').focus(), 400);
+}
+
+function setLoading(on) {
+  document.getElementById('loader').classList.toggle('active', on);
+  document.getElementById('gen-btn').disabled = on;
+  if (on) document.getElementById('results').classList.remove('visible');
+}
+
+function showError(msg) {
+  document.getElementById('error-text').textContent = msg;
+  document.getElementById('error-box').classList.add('visible');
+}
+function hideError() {
+  document.getElementById('error-box').classList.remove('visible');
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyBlock(id, btnId) {
+  const text = document.getElementById(id).textContent.trim();
+  copyToClipboard(text, btnId);
+}
+
+function copyTags(btnId) {
+  const text = lastTags.join(' ');
+  copyToClipboard(text, btnId);
+}
+
+function copyToClipboard(text, btnId) {
+  const btn = document.getElementById(btnId);
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg> Скопійовано`;
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Копіювати`;
+    }, 2200);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
 }
 </script>
 </body>
