@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Аналізатор Профілю</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FE2C55;
+    --cyan: #25F4EE;
+    --black: #010101;
+    --dark: #0a0a0a;
+    --card: #111111;
+    --card2: #161616;
+    --border: rgba(255,255,255,0.07);
+    --text: #ffffff;
+    --muted: rgba(255,255,255,0.45);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero { padding: 72px 0 56px; text-align: center; position: relative; }
+
+  .logo-icon { width: 64px; height: 64px; position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+  .logo-icon svg { width: 52px; height: 52px; }
+  .logo-shadow-cyan { position: absolute; left: -4px; top: 3px; opacity: 0.7; }
+  .logo-shadow-red { position: absolute; right: -4px; top: -3px; opacity: 0.7; }
+  .logo-main { position: relative; z-index: 2; }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 8vw, 72px);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.6));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p { color: var(--muted); font-size: 16px; font-weight: 300; max-width: 420px; margin: 0 auto 8px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(37,244,238,0.08); border: 1px solid rgba(37,244,238,0.2);
+    border-radius: 100px; padding: 4px 12px;
+    font-size: 11px; color: var(--cyan); font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase; margin-top: 16px;
+  }
+  .badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan); animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+  /* SETTINGS */
+  .settings-bar { margin-bottom: 24px; display: flex; justify-content: flex-end; }
+  .settings-toggle {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; font-family: var(--font-body);
+    display: flex; align-items: center; gap: 6px; transition: all .2s;
+  }
+  .settings-toggle:hover { border-color: rgba(255,255,255,.2); color: #fff; }
+
+  .settings-panel {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+    display: none; animation: fade-in .2s ease;
+  }
+  .settings-panel.open { display: block; }
+
+  .field-label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+  .field-input {
+    width: 100%; background: var(--dark); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; color: #fff;
+    font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color .2s;
+  }
+  .field-input:focus { border-color: rgba(37,244,238,.4); }
+  .field-input::placeholder { color: rgba(255,255,255,.2); }
+  .field-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .field-hint a { color: var(--cyan); text-decoration: none; }
+
+  /* CARD */
+  .card {
+    background: var(--card); border-radius: 16px; border: 1px solid var(--border);
+    padding: 28px; margin-bottom: 16px; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0; border-radius: 16px; padding: 1px;
+    background: linear-gradient(135deg, rgba(254,44,85,.2), transparent 50%, rgba(37,244,238,.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out; mask-composite: exclude; pointer-events: none;
+  }
+
+  .card-title {
+    font-family: var(--font-display); font-size: 22px; letter-spacing: .04em;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .card-title .icon {
+    width: 32px; height: 32px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 16px;
+    background: linear-gradient(135deg, rgba(254,44,85,.15), rgba(37,244,238,.15));
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--dark); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+  .tab-btn {
+    flex: 1; padding: 10px; border: none; border-radius: 7px;
+    background: transparent; color: var(--muted); font-family: var(--font-body);
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s;
+  }
+  .tab-btn.active { background: var(--card2); color: #fff; box-shadow: 0 1px 8px rgba(0,0,0,.4); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fade-in .2s ease; }
+
+  /* URL TAB */
+  .url-input-wrap { position: relative; }
+  .url-input-wrap .url-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; pointer-events: none;
+  }
+  .url-input-wrap .field-input { padding-left: 42px; font-size: 15px; height: 48px; }
+
+  .url-info-box {
+    margin-top: 12px; background: rgba(37,244,238,.05);
+    border: 1px solid rgba(37,244,238,.15); border-radius: 10px;
+    padding: 12px 16px; font-size: 13px; color: rgba(255,255,255,.6);
+    display: none;
+  }
+  .url-info-box.visible { display: flex; gap: 10px; align-items: center; }
+  .url-nick { color: var(--cyan); font-weight: 600; }
+
+  .url-extra { margin-top: 16px; display: none; }
+  .url-extra.visible { display: block; }
+  .url-extra-label {
+    font-size: 12px; color: var(--muted); margin-bottom: 10px;
+    font-weight: 500; letter-spacing: .04em;
+  }
+
+  /* UPLOAD ZONE */
+  .upload-zone {
+    border: 2px dashed rgba(255,255,255,.1); border-radius: 12px;
+    padding: 48px 24px; text-align: center; cursor: pointer;
+    transition: all .25s; position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: rgba(37,244,238,.4); background: rgba(37,244,238,.03); }
+  .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+  .upload-text { font-size: 15px; font-weight: 500; color: rgba(255,255,255,.7); margin-bottom: 4px; }
+  .upload-sub { font-size: 13px; color: var(--muted); }
+  .upload-preview { margin-top: 16px; position: relative; display: none; }
+  .upload-preview img { max-width: 100%; max-height: 280px; border-radius: 10px; object-fit: contain; border: 1px solid var(--border); }
+  .remove-preview {
+    position: absolute; top: 8px; right: 8px; width: 28px; height: 28px;
+    border-radius: 50%; background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.2);
+    color: #fff; font-size: 14px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; transition: background .2s;
+  }
+  .remove-preview:hover { background: rgba(254,44,85,.5); }
+
+  /* FORM */
+  .form-grid { display: grid; gap: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+  .field-group { display: flex; flex-direction: column; }
+  textarea.field-input { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  /* BUTTON */
+  .analyze-btn {
+    width: 100%; padding: 16px; border: none; border-radius: 12px;
+    font-family: var(--font-display); font-size: 22px; letter-spacing: .08em;
+    color: #fff; cursor: pointer; position: relative; overflow: hidden; margin-top: 8px;
+    background: linear-gradient(90deg, var(--red), #ff6b6b, var(--cyan), var(--red));
+    background-size: 300% 100%; animation: gradient-shift 4s ease infinite;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(254,44,85,.4); }
+  .analyze-btn:active { transform: translateY(0); }
+  .analyze-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; animation: none; background: #333; }
+  @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+  /* LOADER */
+  .loader { display: none; text-align: center; padding: 56px 0; }
+  .loader.active { display: block; }
+  .loader-logo { width: 56px; height: 56px; margin: 0 auto 20px; animation: spin-logo 1.5s cubic-bezier(.68,-.55,.27,1.55) infinite; }
+  @keyframes spin-logo { 0%{transform:rotate(0deg) scale(1)} 50%{transform:rotate(180deg) scale(.8)} 100%{transform:rotate(360deg) scale(1)} }
+  .loader-text { color: var(--muted); font-size: 14px; animation: fade-pulse 2s ease infinite; }
+  .loader-steps { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .loader-step { font-size: 13px; color: transparent; transition: color .5s; display: flex; align-items: center; gap: 8px; }
+  .loader-step.visible { color: rgba(255,255,255,.3); }
+  .loader-step.done { color: var(--cyan); }
+  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  @keyframes fade-pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+  /* RESULTS */
+  #results { display: none; }
+  #results.visible { display: block; animation: fade-in .5s ease; }
+  @keyframes fade-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SCORE */
+  .score-card { display: flex; align-items: center; gap: 32px; padding: 32px; }
+  @media (max-width: 480px) { .score-card { flex-direction: column; text-align: center; gap: 20px; } }
+  .score-ring-wrap { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+  .score-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: rgba(255,255,255,.06); stroke-width: 8; }
+  .score-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 314; stroke-dashoffset: 314; transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); stroke: url(#ringGradient); }
+  .score-number { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 36px; line-height: 1; }
+  .score-number span { font-size: 13px; font-family: var(--font-body); color: var(--muted); font-weight: 400; }
+  .score-info h2 { font-family: var(--font-display); font-size: 28px; letter-spacing: .04em; margin-bottom: 6px; }
+  .score-info p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .score-label { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-top: 10px; }
+  .score-label.poor { background: rgba(254,44,85,.15); color: var(--red); border: 1px solid rgba(254,44,85,.3); }
+  .score-label.fair { background: rgba(255,180,0,.12); color: #ffb400; border: 1px solid rgba(255,180,0,.3); }
+  .score-label.good { background: rgba(37,244,238,.1); color: var(--cyan); border: 1px solid rgba(37,244,238,.3); }
+  .score-label.great { background: rgba(0,220,130,.1); color: #00dc82; border: 1px solid rgba(0,220,130,.3); }
+
+  /* SECTIONS */
+  .section-card { padding: 22px 28px; margin-bottom: 12px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .section-title { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-icon { font-size: 18px; }
+  .stars { display: flex; gap: 3px; }
+  .star { width: 16px; height: 16px; }
+  .star svg { width: 16px; height: 16px; }
+  .star.filled svg path { fill: var(--red); }
+  .star.empty svg path { fill: rgba(255,255,255,.12); }
+
+  .issue-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 14px; color: rgba(255,255,255,.6); align-items: flex-start; }
+  .issue-item:last-child { border-bottom: none; }
+  .issue-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); margin-top: 6px; flex-shrink: 0; }
+  .tips-list { display: flex; flex-direction: column; gap: 8px; }
+  .tip-item { background: rgba(37,244,238,.04); border: 1px solid rgba(37,244,238,.1); border-radius: 8px; padding: 10px 14px; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+  .tip-arrow { color: var(--cyan); font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+
+  /* PACKAGING */
+  .packaging-card { padding: 28px; }
+  .packaging-title { font-family: var(--font-display); font-size: 26px; letter-spacing: .04em; margin-bottom: 6px; background: linear-gradient(90deg, var(--red), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .packaging-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .pack-block { margin-bottom: 20px; }
+  .pack-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .pack-label::before { content: ''; width: 3px; height: 14px; border-radius: 2px; background: linear-gradient(to bottom, var(--red), var(--cyan)); display: inline-block; }
+  .pack-value { background: var(--dark); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 15px; line-height: 1.6; position: relative; white-space: pre-wrap; word-break: break-word; }
+  .copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; color: var(--muted); font-size: 12px; padding: 4px 10px; cursor: pointer; font-family: var(--font-body); transition: all .2s; }
+  .copy-btn:hover { background: rgba(37,244,238,.1); border-color: rgba(37,244,238,.3); color: var(--cyan); }
+  .copy-btn.copied { color: var(--cyan); border-color: rgba(37,244,238,.4); }
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { background: rgba(254,44,85,.08); border: 1px solid rgba(254,44,85,.2); border-radius: 100px; padding: 4px 12px; font-size: 13px; color: rgba(255,255,255,.8); }
+  .pillars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .pillar-item { background: var(--dark); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; }
+  .pillar-num { font-family: var(--font-display); font-size: 22px; color: var(--red); line-height: 1; margin-bottom: 4px; }
+  .schedule-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 14px; }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-day { color: var(--cyan); font-weight: 600; min-width: 90px; }
+
+  /* ERROR */
+  .error-box { background: rgba(254,44,85,.08); border: 1px solid rgba(254,44,85,.25); border-radius: 12px; padding: 16px 20px; color: rgba(255,255,255,.8); font-size: 14px; display: none; margin-bottom: 16px; }
+  .error-box.visible { display: flex; gap: 10px; align-items: flex-start; }
+  .error-icon { color: var(--red); flex-shrink: 0; }
+
+  /* FOOTER */
+  .footer { margin-top: 64px; padding: 32px 0; border-top: 1px solid var(--border); text-align: center; color: rgba(255,255,255,.2); font-size: 13px; }
+  .footer span { color: var(--red); }
+
+  .section-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+  .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-divider-text { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.2); }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .animated-dots span { animation: blink 1.4s infinite both; }
+  .animated-dots span:nth-child(2) { animation-delay: .2s; }
+  .animated-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="logo-icon">
+      <svg class="logo-shadow-cyan" viewBox="0 0 52 52" fill="none"><path d="M21.5 6h9v25.5a8 8 0 1 1-9-7.9V15.1A17 17 0 1 0 38.5 31.5V16a18.9 18.9 0 0 0 8 1.6V9a10 10 0 0 1-8-3.2" fill="#25F4EE"/></svg>
+      <svg class="logo-shadow-red" viewBox="0 0 52 52" fill="none"><path d="M21.5 6h9v25.5a8 8 0 1 1-9-7.9V15.1A17 17 0 1 0 38.5 31.5V16a18.9 18.9 0 0 0 8 1.6V9a10 10 0 0 1-8-3.2" fill="#FE2C55"/></svg>
+      <svg class="logo-main" viewBox="0 0 52 52" fill="none"><path d="M21.5 6h9v25.5a8 8 0 1 1-9-7.9V15.1A17 17 0 1 0 38.5 31.5V16a18.9 18.9 0 0 0 8 1.6V9a10 10 0 0 1-8-3.2" fill="white"/></svg>
+    </div>
+    <h1>АНАЛІЗАТОР<br>ПРОФІЛЮ</h1>
+    <p>Вставте посилання, скріншот або введіть дані — отримайте AI-поради для зростання</p>
+    <span class="badge">Gemini AI · Безкоштовно</span>
+  </header>
+
+  <!-- SETTINGS -->
+  <div class="settings-bar">
+    <button class="settings-toggle" onclick="toggleSettings()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Налаштування
+    </button>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <label class="field-label">Gemini API Ключ</label>
+    <input type="password" class="field-input" id="apiKey" placeholder="AIzaSy..." oninput="saveApiKey()">
+    <p class="field-hint">Безкоштовний ключ: <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → Get API key</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title"><div class="icon">📊</div>Дані для аналізу</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('url')">🔗 Посилання TikTok</button>
+      <button class="tab-btn" onclick="switchTab('screenshot')">📸 Скріншот</button>
+      <button class="tab-btn" onclick="switchTab('manual')">✏️ Вручну</button>
+    </div>
+
+    <!-- TAB: URL -->
+    <div class="tab-panel active" id="tab-url">
+      <div class="url-input-wrap">
+        <span class="url-icon">🔗</span>
+        <input type="url" class="field-input" id="urlInput"
+          placeholder="https://www.tiktok.com/@yourname"
+          oninput="handleUrlInput(this.value)">
+      </div>
+      <div class="url-info-box" id="urlInfoBox">
+        <span>👤</span>
+        <span>Знайдено нік: <span class="url-nick" id="urlNickDisplay"></span></span>
+      </div>
+      <div class="url-extra" id="urlExtra">
+        <p class="url-extra-label">Необов'язково: додайте деталі для точнішого аналізу</p>
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">Кількість відео</label>
+              <input type="number" class="field-input" id="u-videos" placeholder="0" min="0">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Підписників</label>
+              <input type="number" class="field-input" id="u-followers" placeholder="0" min="0">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Біо-опис (якщо є)</label>
+            <textarea class="field-input" id="u-bio" placeholder="Текст з вашого профілю..."></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Тематика контенту</label>
+            <input type="text" class="field-input" id="u-niche" placeholder="Наприклад: освіта, фітнес, гумор...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Screenshot -->
+    <div class="tab-panel" id="tab-screenshot">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)">
+        <span class="upload-icon">🖼️</span>
+        <p class="upload-text">Перетягни скріншот сюди або натисни</p>
+        <p class="upload-sub">PNG, JPG, WEBP · до 10 МБ</p>
+      </div>
+      <div class="upload-preview" id="uploadPreview">
+        <img id="previewImg" src="" alt="Preview">
+        <button class="remove-preview" onclick="removePreview()">✕</button>
+      </div>
+    </div>
+
+    <!-- TAB: Manual -->
+    <div class="tab-panel" id="tab-manual">
+      <div class="form-grid">
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Нік (username)</label>
+            <input type="text" class="field-input" id="f-nick" placeholder="@твій_нік">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Ім'я (display name)</label>
+            <input type="text" class="field-input" id="f-name" placeholder="Твоє ім'я або бренд">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Біо-опис</label>
+          <textarea class="field-input" id="f-bio" placeholder="Що написано в описі профілю..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Кількість відео</label>
+            <input type="number" class="field-input" id="f-videos" placeholder="0" min="0">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Підписників</label>
+            <input type="number" class="field-input" id="f-followers" placeholder="0" min="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Лайків (всього)</label>
+            <input type="number" class="field-input" id="f-likes" placeholder="0" min="0">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Тематика контенту</label>
+            <input type="text" class="field-input" id="f-niche" placeholder="Наприклад: освіта, фітнес...">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Цільова аудиторія</label>
+          <input type="text" class="field-input" id="f-audience" placeholder="Хто твій ідеальний глядач?">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Мета</label>
+          <input type="text" class="field-input" id="f-goal" placeholder="Більше підписників, монетизація, бренд...">
+        </div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+    <div class="error-box" id="errorBox"><span class="error-icon">⚠</span><span id="errorText"></span></div>
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeProfile()">АНАЛІЗУВАТИ ПРОФІЛЬ</button>
+  </div>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="loader-logo">
+      <svg viewBox="0 0 52 52" fill="none" width="56" height="56">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FE2C55"/><stop offset="100%" stop-color="#25F4EE"/></linearGradient></defs>
+        <path d="M21.5 6h9v25.5a8 8 0 1 1-9-7.9V15.1A17 17 0 1 0 38.5 31.5V16a18.9 18.9 0 0 0 8 1.6V9a10 10 0 0 1-8-3.2" fill="url(#lg)"/>
+      </svg>
+    </div>
+    <p class="loader-text">AI аналізує твій профіль<span class="animated-dots"><span>.</span><span>.</span><span>.</span></span></p>
+    <div class="loader-steps" id="loaderSteps">
+      <div class="loader-step" id="step1"><div class="step-dot"></div>Відправляю дані до Gemini AI</div>
+      <div class="loader-step" id="step2"><div class="step-dot"></div>Аналіз сильних та слабких сторін</div>
+      <div class="loader-step" id="step3"><div class="step-dot"></div>Формую персональні рекомендації</div>
+      <div class="loader-step" id="step4"><div class="step-dot"></div>Створюю покращену упаковку профілю</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="section-divider"><span class="section-divider-text">Результат аналізу</span></div>
+
+    <div class="card score-card" id="scoreCard">
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 120 120">
+          <defs><linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FE2C55"/><stop offset="100%" stop-color="#25F4EE"/></linearGradient></defs>
+          <circle class="score-ring-bg" cx="60" cy="60" r="50"/>
+          <circle class="score-ring-fill" id="scoreRing" cx="60" cy="60" r="50"/>
+        </svg>
+        <div class="score-number"><span id="scoreNum">0</span><span>/ 100</span></div>
+      </div>
+      <div class="score-info">
+        <h2 id="scoreHeadline">Профіль проаналізовано</h2>
+        <p id="scoreSummary"></p>
+        <div id="scoreLabel" class="score-label"></div>
+      </div>
+    </div>
+
+    <div id="sectionsWrap"></div>
+
+    <div class="card packaging-card" id="packagingCard" style="display:none">
+      <div class="packaging-title">✨ ПОКРАЩЕНА УПАКОВКА</div>
+      <p class="packaging-subtitle">AI-версія твого профілю — готова до копіювання</p>
+      <div id="packagingContent"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Зроблено для TikTok-творців · Аналіз від <span>Gemini AI</span></p>
+  </footer>
+</div>
+
+<script>
+// ── CONFIG ──
+const GEMINI_API_KEY_DEFAULT = 'AQ.Ab8RN6LvKU9mapUaRaXc2v2vmjqu2JTMUONh90UWAKViZH9pEQ';
+const GEMINI_MODEL = 'gemini-2.0-flash';
+
+// ── STATE ──
+let currentTab = 'url';
+let uploadedImageBase64 = null;
+let uploadedMimeType = 'image/jpeg';
+let stepTimers = [];
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  // Load saved key or use default
+  const saved = localStorage.getItem('gemini_api_key');
+  document.getElementById('apiKey').value = saved || GEMINI_API_KEY_DEFAULT;
+  if (!saved) localStorage.setItem('gemini_api_key', GEMINI_API_KEY_DEFAULT);
+
+  // Drag & drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) processFile(f);
+  });
+});
+
+// ── SETTINGS ──
+function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); }
+function saveApiKey() {
+  const k = document.getElementById('apiKey').value.trim();
+  if (k) localStorage.setItem('gemini_api_key', k);
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  currentTab = tab;
+  const tabs = ['url', 'screenshot', 'manual'];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  hideError();
+}
+
+// ── URL HANDLING ──
+function extractTikTokUsername(url) {
+  try {
+    const match = url.match(/@([\w.]+)/);
+    return match ? match[1] : null;
+  } catch { return null; }
+}
+
+function handleUrlInput(val) {
+  const nick = extractTikTokUsername(val);
+  const infoBox = document.getElementById('urlInfoBox');
+  const extra = document.getElementById('urlExtra');
+  if (nick && val.includes('tiktok.com')) {
+    document.getElementById('urlNickDisplay').textContent = '@' + nick;
+    infoBox.classList.add('visible');
+    extra.classList.add('visible');
+  } else if (val.length > 0) {
+    infoBox.classList.remove('visible');
+    extra.classList.add('visible');
+  } else {
+    infoBox.classList.remove('visible');
+    extra.classList.remove('visible');
+  }
+}
+
+// ── FILE HANDLING ──
+function handleFile(e) { const f = e.target.files[0]; if (f) processFile(f); }
+
+function processFile(file) {
+  if (!file.type.startsWith('image/')) { showError('Оберіть файл зображення (PNG, JPG, WEBP)'); return; }
+  if (file.size > 10 * 1024 * 1024) { showError('Файл занадто великий. Максимум 10 МБ'); return; }
+  uploadedMimeType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    uploadedImageBase64 = dataUrl.split(',')[1];
+    document.getElementById('previewImg').src = dataUrl;
+    document.getElementById('uploadPreview').style.display = 'block';
+    document.getElementById('uploadZone').style.display = 'none';
+    hideError();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePreview() {
+  uploadedImageBase64 = null;
+  document.getElementById('previewImg').src = '';
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('fileInput').value = '';
+}
+
+// ── ERROR ──
+function showError(msg) {
+  document.getElementById('errorText').textContent = msg;
+  document.getElementById('errorBox').classList.add('visible');
+}
+function hideError() { document.getElementById('errorBox').classList.remove('visible'); }
+
+// ── LOADER ──
+function startLoaderSteps() {
+  ['step1','step2','step3','step4'].forEach(id => document.getElementById(id).className = 'loader-step');
+  [300, 1500, 3000, 4800].forEach((d, i) => {
+    stepTimers.push(setTimeout(() => {
+      document.getElementById('step' + (i+1))?.classList.add('visible');
+      if (i > 0) document.getElementById('step' + i)?.classList.add('done');
+    }, d));
+  });
+}
+function clearLoaderSteps() { stepTimers.forEach(clearTimeout); stepTimers = []; }
+
+// ── SYSTEM PROMPT ──
+const SYSTEM_PROMPT = `Ти — топовий експерт з TikTok маркетингу та персонального брендингу з 10+ роками досвіду. Ти аналізуєш TikTok профілі та надаєш конкретні, дієві поради виключно українською мовою.
+
+ВАЖЛИВО: Твоя відповідь має бути ТІЛЬКИ JSON без жодного тексту до або після. Ніяких пояснень, ніяких markdown-блоків.
+
+Якщо тобі надають лише нік/посилання без скріншоту — аналізуй на основі назви нікнейму, структури URL та загальних принципів, чесно зазначаючи, що певні дані недоступні.
+
+JSON структура:
+{
+  "score": <число 0-100>,
+  "headline": "<коротка оцінка профілю, 10-15 слів>",
+  "summary": "<загальний висновок, 2-3 речення>",
+  "sections": [
+    {
+      "title": "<назва секції>",
+      "icon": "<один емодзі>",
+      "rating": <1-5>,
+      "issues": ["<проблема 1>", "<проблема 2>"],
+      "tips": ["<конкретна порада 1>", "<конкретна порада 2>", "<конкретна порада 3>"]
+    }
+  ],
+  "improved_packaging": {
+    "new_nick": "<запропонований нік>",
+    "new_name": "<ім'я для відображення>",
+    "new_bio": "<новий біо з емодзі та CTA, 3-5 рядків>",
+    "hashtags": ["#хештег1", "#хештег2", "#хештег3", "#хештег4", "#хештег5"],
+    "content_pillars": ["<тема 1>", "<тема 2>", "<тема 3>"],
+    "posting_schedule": [
+      {"day": "Пн-Ср-Пт", "time": "18:00-20:00", "type": "основний контент"},
+      {"day": "Вт-Чт", "time": "12:00-14:00", "type": "підтримуючий контент"},
+      {"day": "Сб-Нд", "time": "10:00-12:00", "type": "трендовий контент"}
+    ]
+  }
+}
+
+Секції для аналізу (завжди рівно 4): "Фото профілю", "Нік та ім'я", "Біо-опис", "Контент-стратегія".
+Шкала: 0-40 = слабко, 41-60 = задовільно, 61-79 = добре, 80-100 = відмінно.
+Будь чесним і конкретним. Кожна порада — дієва і застосовна.`;
+
+// ── MAIN ANALYZE ──
+async function analyzeProfile() {
+  hideError();
+
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) {
+    document.getElementById('settingsPanel').classList.add('open');
+    showError('Введіть Gemini API ключ у налаштуваннях');
+    return;
+  }
+
+  // Validation
+  if (currentTab === 'url') {
+    const url = document.getElementById('urlInput').value.trim();
+    if (!url) { showError('Вставте посилання на TikTok профіль'); return; }
+  }
+  if (currentTab === 'screenshot' && !uploadedImageBase64) {
+    showError('Завантажте скріншот профілю'); return;
+  }
+  if (currentTab === 'manual') {
+    const nick = document.getElementById('f-nick').value.trim();
+    const bio = document.getElementById('f-bio').value.trim();
+    if (!nick && !bio) { showError('Заповніть хоча б нік або біо'); return; }
+  }
+
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('loader').classList.add('active');
+  document.getElementById('results').classList.remove('visible');
+  startLoaderSteps();
+
+  // Build Gemini request parts
+  let parts = [];
+
+  if (currentTab === 'screenshot') {
+    parts.push({ inline_data: { mime_type: uploadedMimeType, data: uploadedImageBase64 } });
+    parts.push({ text: 'Проаналізуй цей скріншот TikTok профілю. Оціни всі видимі елементи: фото профілю, нік, ім\'я, біо-опис, статистику. Відповідь ТІЛЬКИ у JSON форматі згідно інструкцій.' });
+  } else if (currentTab === 'url') {
+    const url = document.getElementById('urlInput').value.trim();
+    const nick = extractTikTokUsername(url);
+    const videos = document.getElementById('u-videos').value.trim();
+    const followers = document.getElementById('u-followers').value.trim();
+    const bio = document.getElementById('u-bio').value.trim();
+    const niche = document.getElementById('u-niche').value.trim();
+
+    let text = `Проаналізуй TikTok профіль:
+- Посилання: ${url}
+- Нік: @${nick || 'невідомо'}
+${bio ? `- Біо: ${bio}` : '- Біо: не надано (проаналізуй за ніком)'}
+${videos ? `- Відео: ${videos}` : ''}
+${followers ? `- Підписників: ${followers}` : ''}
+${niche ? `- Тематика: ${niche}` : ''}
+
+Якщо певні дані відсутні — роби висновки з нікнейму та URL. Відповідь ТІЛЬКИ у JSON форматі.`;
+    parts.push({ text: text.trim() });
+  } else {
+    const nick = document.getElementById('f-nick').value.trim();
+    const name = document.getElementById('f-name').value.trim();
+    const bio = document.getElementById('f-bio').value.trim();
+    const videos = document.getElementById('f-videos').value.trim();
+    const followers = document.getElementById('f-followers').value.trim();
+    const likes = document.getElementById('f-likes').value.trim();
+    const niche = document.getElementById('f-niche').value.trim();
+    const audience = document.getElementById('f-audience').value.trim();
+    const goal = document.getElementById('f-goal').value.trim();
+
+    let text = `Проаналізуй TikTok профіль:
+- Нік: ${nick || 'не вказано'}
+- Ім'я: ${name || 'не вказано'}
+- Біо: ${bio || 'не вказано'}
+- Відео: ${videos || 'не вказано'}
+- Підписників: ${followers || 'не вказано'}
+- Лайків: ${likes || 'не вказано'}
+- Тематика: ${niche || 'не вказано'}
+- Аудиторія: ${audience || 'не вказано'}
+- Мета: ${goal || 'не вказано'}
+
+Відповідь ТІЛЬКИ у JSON форматі.`;
+    parts.push({ text: text.trim() });
+  }
+
+  const requestBody = {
+    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents: [{ role: 'user', parts }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+  };
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const msg = err.error?.message || `Помилка API: ${response.status}`;
+      throw new Error(msg);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('Gemini не повернув відповідь. Спробуйте ще раз.');
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Некоректний формат відповіді AI. Спробуйте ще раз.');
+    const result = JSON.parse(jsonMatch[0]);
+
+    clearLoaderSteps();
+    document.getElementById('loader').classList.remove('active');
+    renderResults(result);
+
+  } catch (err) {
+    clearLoaderSteps();
+    document.getElementById('loader').classList.remove('active');
+    showError(err.message || 'Сталася помилка. Перевірте API ключ.');
+  } finally {
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+}
+
+// ── RENDER ──
+function renderResults(data) {
+  const score = Math.round(data.score) || 0;
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreHeadline').textContent = data.headline || 'Аналіз завершено';
+  document.getElementById('scoreSummary').textContent = data.summary || '';
+
+  const lbl = document.getElementById('scoreLabel');
+  if (score < 41)      { lbl.textContent = 'Потребує роботи'; lbl.className = 'score-label poor'; }
+  else if (score < 61) { lbl.textContent = 'Задовільно';       lbl.className = 'score-label fair'; }
+  else if (score < 80) { lbl.textContent = 'Добре';            lbl.className = 'score-label good'; }
+  else                 { lbl.textContent = 'Відмінно';         lbl.className = 'score-label great'; }
+
+  requestAnimationFrame(() => {
+    const offset = 314 - (score / 100) * 314;
+    document.getElementById('scoreRing').style.strokeDashoffset = offset;
+  });
+
+  const wrap = document.getElementById('sectionsWrap');
+  wrap.innerHTML = '';
+  (data.sections || []).forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'card section-card';
+    const stars = Array.from({length:5}, (_,i) =>
+      `<div class="star ${i < Math.floor(sec.rating) ? 'filled' : 'empty'}">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>`
+    ).join('');
+    const issues = (sec.issues||[]).map(i =>
+      `<div class="issue-item"><div class="issue-dot"></div><span>${escHtml(i)}</span></div>`
+    ).join('');
+    const tips = (sec.tips||[]).map(t =>
+      `<div class="tip-item"><span class="tip-arrow">▶</span><span>${escHtml(t)}</span></div>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="section-header">
+        <div class="section-title"><span class="section-icon">${sec.icon||'📌'}</span>${escHtml(sec.title)}</div>
+        <div class="stars">${stars}</div>
+      </div>
+      ${issues ? `<div style="margin-bottom:12px">${issues}</div>` : ''}
+      ${tips ? `<div class="tips-list">${tips}</div>` : ''}`;
+    wrap.appendChild(card);
+  });
+
+  const pkg = data.improved_packaging;
+  if (pkg) {
+    const pc = document.getElementById('packagingContent');
+    pc.innerHTML = '';
+    if (pkg.new_nick) pc.appendChild(packBlock('🎯 Новий нік', pkg.new_nick));
+    if (pkg.new_name) pc.appendChild(packBlock("✨ Ім'я профілю", pkg.new_name));
+    if (pkg.new_bio)  pc.appendChild(packBlock('📝 Новий біо-опис', pkg.new_bio));
+
+    if (pkg.hashtags?.length) {
+      const el = document.createElement('div');
+      el.className = 'pack-block';
+      const hashStr = pkg.hashtags.join(' ');
+      el.innerHTML = `<div class="pack-label">🏷️ Хештеги</div>
+        <div class="pack-value">
+          <div class="tags-wrap">${pkg.hashtags.map(h=>`<span class="tag">${escHtml(h)}</span>`).join('')}</div>
+          <button class="copy-btn" onclick="copyText(this,'${hashStr.replace(/'/g,"\\'")}')">Копіювати</button>
+        </div>`;
+      pc.appendChild(el);
+    }
+    if (pkg.content_pillars?.length) {
+      const el = document.createElement('div');
+      el.className = 'pack-block';
+      el.innerHTML = `<div class="pack-label">🏛 Контент-теми</div>
+        <div class="pack-value"><div class="pillars-grid">${pkg.content_pillars.map((p,i)=>
+          `<div class="pillar-item"><div class="pillar-num">${String(i+1).padStart(2,'0')}</div>${escHtml(p)}</div>`
+        ).join('')}</div></div>`;
+      pc.appendChild(el);
+    }
+    if (pkg.posting_schedule?.length) {
+      const rows = pkg.posting_schedule.map(r =>
+        `<div class="schedule-row"><span class="schedule-day">${escHtml(r.day)}</span><span style="color:var(--muted)">${escHtml(r.time)}</span><span style="color:rgba(255,255,255,.5);font-size:13px">${escHtml(r.type)}</span></div>`
+      ).join('');
+      const el = document.createElement('div');
+      el.className = 'pack-block';
+      el.innerHTML = `<div class="pack-label">📅 Розклад публікацій</div><div class="pack-value">${rows}</div>`;
+      pc.appendChild(el);
+    }
+    document.getElementById('packagingCard').style.display = 'block';
+  }
+
+  document.getElementById('results').classList.add('visible');
+  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function packBlock(label, value) {
+  const el = document.createElement('div');
+  el.className = 'pack-block';
+  el.innerHTML = `<div class="pack-label">${label}</div>
+    <div class="pack-value">${escHtml(value)}<button class="copy-btn" onclick="copyText(this, this.closest('.pack-value').textContent.trim().replace('Копіювати','').trim())">Копіювати</button></div>`;
+  return el;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Скопійовано'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Копіювати'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Скопійовано'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Копіювати'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
