@@ -684,6 +684,7 @@ const SYSTEM_PROMPT = `Ти — AI-наставник Віталік, експе
 - Заголовки: [H]ТЕКСТ[/H]. НЕ використовуй ### або ***.
 - Розділяй думки новими рядками.
 - Давай дієві поради, які можна застосувати одразу.
+- ВАЖЛИВО: НЕ вітайся ("Привіт", "Вітаю" тощо) у кожному повідомленні. Починай одразу з відповіді по суті.
 
 БАЗА ЗНАНЬ ПРО TIKTOK:
 ${buildKB()}`;
@@ -814,11 +815,12 @@ function addTyping() {
 
 function formatAI(text) {
   return text
-    .replace(/\[H\](.*?)\[\/H\]/gi, '<h3>$1</h3>')
     .split('\n')
     .map(line => {
       const t = line.trim();
       if (!t) return '<div style="height:3px"></div>';
+      const headerMatch = t.match(/^\[H\](.*?)\[\/H\]$/i);
+      if (headerMatch) return '<h3>' + headerMatch[1].replace(/&/g,'&amp;') + '</h3>';
       return '<p>' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
     })
     .join('');
