@@ -821,7 +821,11 @@ function formatAI(text) {
       if (!t) return '<div style="height:3px"></div>';
       const headerMatch = t.match(/^\[H\](.*?)\[\/H\]$/i);
       if (headerMatch) return '<h3>' + headerMatch[1].replace(/&/g,'&amp;') + '</h3>';
-      return '<p>' + t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
+      const clean = t
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/^[\*\-]\s+/, '');
+      return '<p>' + clean.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
     })
     .join('');
 }
