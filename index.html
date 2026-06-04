@@ -523,19 +523,22 @@ async function generate() {
   setLoading(true);
 
   try {
-    const body = {
-      contents: [{ role: 'user', parts: [{ text: PROMPT(niche, audience, goal) }] }],
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 2048,
-        responseMimeType: 'application/json'
-      }
-    };
-
-    const res = await fetch('/api/generate', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer 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'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: 'Ти — топ TikTok-сценарист. Відповідаєш ТІЛЬКИ валідним JSON без жодного тексту до або після.' },
+          { role: 'user',   content: PROMPT(niche, audience, goal) }
+        ],
+        temperature: 0.8,
+        max_tokens: 2048
+      })
     });
 
     if (!res.ok) {
@@ -544,8 +547,8 @@ async function generate() {
     }
 
     const data = await res.json();
-    const raw  = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!raw) throw new Error('Пуста відповідь від Gemini');
+    const raw  = data.choices?.[0]?.message?.content;
+    if (!raw) throw new Error('Пуста відповідь від AI');
 
     const match = raw.match(/\{[\s\S]*\}/);
     const json  = JSON.parse(match ? match[0] : raw);
