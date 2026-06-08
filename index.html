@@ -527,7 +527,7 @@ async function generate() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: 'Ти — топ TikTok-сценарист. Відповідаєш ТІЛЬКИ валідним JSON без жодного тексту до або після.' },
           { role: 'user',   content: PROMPT(niche, audience, goal) }
